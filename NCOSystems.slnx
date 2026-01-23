@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="NCOSystems.BLL/NCOSystems.BLL.csproj" Id="88802e9c-8360-422c-88ff-257362abab41" />
+  <Project Path="NCOSystems.DAL/NCOSystems.DAL.csproj" Id="ca1fee47-7fd0-4436-994c-c515da013c70" />
+  <Project Path="NCOSystems.Entity/NCOSystems.Entity.csproj" Id="533a84fc-0559-450b-9f20-b6343925fc07" />
+  <Project Path="NCOSystems.WEB/NCOSystems.WEB.csproj" Id="d630ffc5-8afd-4b99-b7f2-a0f0978032d0" />
+</Solution>

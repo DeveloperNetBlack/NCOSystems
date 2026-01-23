@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GridMvcCore" Version="8.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NCOSystems.BLL\NCOSystems.BLL.csproj" />
+    <ProjectReference Include="..\NCOSystems.Entity\NCOSystems.Entity.csproj" />
+  </ItemGroup>
+
+</Project>
