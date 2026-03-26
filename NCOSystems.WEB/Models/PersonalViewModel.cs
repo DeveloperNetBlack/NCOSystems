@@ -15,12 +15,17 @@ namespace NCOSystems.WEB.Models
         
         public List<TipoLicenciaEntity> tipoLicenciaEntities { get; set; } = new();
         
-        public List<PersonalTipoLicencia> personalTipoLicenciaEntities { get; set; } = new();
+        public List<PersonalTipoLicenciaEntity> personalTipoLicenciaEntities { get; set; } = new();
+
+        public List<PersonalHijoEntity> personalHijoEntities { get; set; } = new();
 
         public List<TipoDocumentoEntity> tipoDocumentoEntities { get; set; } = new();
 
         public string? FechaLicenciaClaseB { get; set; }
         
         public string? FechaVctoLicencia { get; set; }
+
+        public string? NombreHijo { get; set; }
+        public int EdadHijo { get; set; }
     }
 }

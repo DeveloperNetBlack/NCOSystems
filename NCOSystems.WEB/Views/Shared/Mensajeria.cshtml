@@ -1,0 +1,60 @@
+﻿@model MensajeriaViewModel
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mensaje - NCO Formulario</title>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    @{
+        if (Model.Url!.StartsWith("/"))
+        {
+            Model.Url = Url.Content("~" + Model.Url);
+        }
+    }
+
+    @if (!Model.IsError)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '@Html.Raw(Model.Mensaje)',
+                confirmButtonText: "OK",
+                text: ''
+            }).then((result) =>
+            {
+            if (result.isConfirmed)
+            {
+            window.location.href = '@Model.Url';
+            }
+            }
+            );
+        </script>
+    }
+    else if (Model.IsError)
+    {
+        <script>
+            Swal.fire({
+            icon: 'error',
+            title: '@Html.Raw(Model.Mensaje)',
+            confirmButtonText: "OK",
+            text: ''
+            }).then((result) =>
+            {
+            if (result.isConfirmed)
+            {
+            window.location.href = '@Model.Url';
+            }
+            }
+            );
+        </script>
+    }
+</body>
+
+</html>
+
+
+

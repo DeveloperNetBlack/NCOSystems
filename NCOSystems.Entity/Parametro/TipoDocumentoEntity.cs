@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,5 +9,6 @@ namespace NCOSystems.Entity.Parametro
     {
         public int IdTipoDocumento { get; set; }
         public string? NombreTipoDocumento { get; set; }
+        public IFormFile? Archivo { get; set; }
     }
 }

@@ -8,10 +8,11 @@ namespace NCOSystems.BLL
 {
     public class Personal
     {
-        public void Insertar(PersonalEntity personalEntity, IConfiguration configuration)
+        public int Insertar(PersonalEntity personalEntity, IConfiguration configuration)
         {
             DAL.Personal personal = new DAL.Personal();
-            personal.Insertar(personalEntity, configuration);
+            
+            return personal.Insertar(personalEntity, configuration);
         }
 
         public void Actualizar(PersonalEntity personalEntity, IConfiguration configuration)
@@ -20,10 +21,28 @@ namespace NCOSystems.BLL
             personal.Actualizar(personalEntity, configuration);
         }
 
-        public void InsertarHijo(PersonalHijoEntity personalHijoEntity, IConfiguration configuration)
+        public void InsertarHijo(List<PersonalHijoEntity> personalHijoEntity, int idPersonal, IConfiguration configuration)
         {
             DAL.Personal personal = new DAL.Personal();
-            personal.InsertarHijo(personalHijoEntity, configuration);
+
+            foreach (var item in personalHijoEntity)
+            {
+                item.IdPersonal = idPersonal;
+                item.IdUsuario = "ADMIN";
+                personal.InsertarHijo(item, configuration);
+            }
+        }
+
+        public void InsertarPersonalTipoLicencia(List<PersonalTipoLicenciaEntity> personalTipoLicenciaEntity, int idPersonal,  IConfiguration configuration)
+        {
+            DAL.Personal personal = new DAL.Personal();
+
+            foreach (var item in personalTipoLicenciaEntity)
+            {
+                item.IdPersonal = idPersonal;
+                item.IdUsuario = "ADMIN";
+                personal.InsertarPersonalTipoLicencia(item, configuration);
+            }
         }
 
         public List<PersonalEntity> ListarPersonal(string rutPersonal, string nombrePersonal, IConfiguration configuration)

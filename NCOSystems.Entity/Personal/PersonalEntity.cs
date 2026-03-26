@@ -22,12 +22,11 @@ namespace NCOSystems.Entity.Personal
 
         public string? CorreoElectronico { get; set; }
 
-        public DateTime FecLicenciaB { get; set; }
+        public DateTime? FecLicenciaB { get; set; }
 
         public int IndVigencia { get; set; }
 
         public string? IdUsuario { get; set; }
 
-        public string? EdadHijo { get; set; }
     }
 }

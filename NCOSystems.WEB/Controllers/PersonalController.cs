@@ -2,9 +2,12 @@
 using GridShared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient.DataClassification;
 using NCOSystems.Entity.Parametro;
 using NCOSystems.Entity.Personal;
+using NCOSystems.WEB.Helpers;
 using NCOSystems.WEB.Models;
+using System.Text.Json;
 
 namespace NCOSystems.WEB.Controllers
 {
@@ -32,20 +35,9 @@ namespace NCOSystems.WEB.Controllers
             model.regionEntities = parametro.ListarRegion(_configuration);
             model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
             model.tipoDocumentoEntities = parametro.ListarTipoDocumento(_configuration);
-            model.FechaLicenciaClaseB = DateTime.Today.ToShortDateString();
+            //model.FechaLicenciaClaseB = DateTime.Today.ToShortDateString();
 
-            model.personalTipoLicenciaEntities = new List<PersonalTipoLicencia>();
-
-            foreach(var item in model.tipoLicenciaEntities)
-            {
-                model.personalTipoLicenciaEntities.Add(new PersonalTipoLicencia
-                {
-                    IdPersonal = 0,
-                    IdTipoLicencia = item.IdTipoLicencia,
-                    NombreClaseLicencia = item.NombreTipo,
-                    FechaVctoLicencia = null
-                });
-            }
+            model.personalTipoLicenciaEntities = new List<PersonalTipoLicenciaEntity>();
 
             ViewBag.ListaComuna = new List<SelectListItem>();
 
@@ -65,49 +57,6 @@ namespace NCOSystems.WEB.Controllers
         }
 
         [HttpPost]
-        public JsonResult AgregarLicencia(string fecVctoLicencia, string tipoLicencia)
-        {
-            // Obtener modelo de la memoria
-            PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
-            int idFila = 0;
-            string? nombreTipoLicencia = string.Empty;
-
-            // Chequea si el modelo existe
-            if (model == null)
-            {
-                model = new PersonalViewModel();
-            }
-
-            if(model.personalTipoLicenciaEntities == null)
-            {
-                model.personalTipoLicenciaEntities = new List<PersonalTipoLicencia>();
-            }
-
-            if(model.personalTipoLicenciaEntities.Count > 0)
-            {
-                idFila = model.personalTipoLicenciaEntities.Max(x => x.IdPersonalTipoLicencia) + 1;
-            }
-            else
-            {
-                idFila = 0;
-            }
-
-            nombreTipoLicencia = model.tipoLicenciaEntities.Where(x => x.IdTipoLicencia == Convert.ToInt32(tipoLicencia)).Select(x => x.NombreTipo).FirstOrDefault();
-
-            model.personalTipoLicenciaEntities.Add(new PersonalTipoLicencia
-            {
-                IdTipoLicencia = Convert.ToInt32(tipoLicencia),
-                FechaVctoLicencia = Convert.ToDateTime(fecVctoLicencia),
-                IdPersonalTipoLicencia = idFila,
-                NombreClaseLicencia = nombreTipoLicencia
-            });
-
-            TempData.Put("PersonalData", model);
-
-            return Json(model);
-        }
-
-        [HttpPost]
         public JsonResult EliminarLicencia(string idPersonalTipoLicencia)
         {
             // Obtener modelo de la memoria
@@ -121,11 +70,112 @@ namespace NCOSystems.WEB.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(IFormCollection formulario)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string personalData, string datoPersonalTipoLicencia, string datoPersonalHijo, [FromForm] List<TipoDocumentoEntity> documentos)
         {
-            PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
+            int idPersonal = 0;
+            string rutPersonal = string.Empty;  
+            BLL.Documento documentoBLL = new BLL.Documento();
 
-            return View();
+            try
+            {
+
+                idPersonal = Grabar(personalData, datoPersonalTipoLicencia, datoPersonalHijo, out rutPersonal);
+
+                var archivosGuardados = new List<object>();
+                var errores = new List<string>();
+
+                foreach (var doc in documentos)
+                {
+
+                    var carpeta = Path.Combine("wwwroot", @"Documento\" + rutPersonal.Replace(".", "").Replace("-", ""));
+
+                    if (!Directory.Exists(carpeta))
+                        Directory.CreateDirectory(carpeta);
+
+                    var rutaCompleta = Path.Combine(carpeta, doc.Archivo!.FileName);
+
+                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    {
+                        await doc.Archivo.CopyToAsync(stream);
+                    }
+
+                    // Aquí puedes guardar en BD:
+                    documentoBLL.Insertar(new DocumentoEntity
+                    {
+                        IdPersona = idPersonal,
+                        IdTipoDocumento = doc.IdTipoDocumento,
+                        NombreDocumento = doc.Archivo.FileName,
+                        IdUsuario = "ADMIN"
+                    }, _configuration);
+                }
+
+            }
+            catch (Exception ex) 
+            {
+                return Json(new { isError = true, mensaje = ex.Message, url = "/Personal" });
+            }
+
+            return Json(new { isError = false, mensaje = "Datos grabados exitosamente", url = "/Personal" });
+        }
+
+        private int Grabar(string personalData, string personalTipoLicencia, string personalHijo, out string rutPersonal)
+        {
+            int idPersonal = 0;
+            PersonalEntity personalEntity = new PersonalEntity();
+            BLL.Personal personalBLL = new BLL.Personal();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                        {
+                            new StringToIntConverter(),
+                            new StringToDateTimeConverter()
+                        }
+            };
+
+            var persona = JsonSerializer.Deserialize<PersonalViewModel>(personalData, options);
+
+            personalEntity.IdComuna = persona!.IdComuna;
+            personalEntity.RutPersonal = persona.RutPersonal!.Replace(".","").ToUpper();
+            personalEntity.NombrePersonal = persona.NombrePersonal!.ToUpper();
+            personalEntity.ApellidoPaternoPersonal = persona.ApellidoPaternoPersonal!.ToUpper();
+            personalEntity.ApellidoMaternoPersonal = persona.ApellidoMaternoPersonal!.ToUpper();
+            personalEntity.TelefonoPersonal = persona.TelefonoPersonal;
+            personalEntity.CorreoElectronico = persona.CorreoElectronico;
+            personalEntity.FecLicenciaB = persona.FecLicenciaB;
+            personalEntity.IndVigencia = 1;
+            personalEntity.IdUsuario = "ADMIN";
+
+            idPersonal = personalBLL.Insertar(personalEntity, _configuration);
+
+            var tipoLicencia = JsonSerializer.Deserialize<List<PersonalTipoLicenciaEntity>>(personalTipoLicencia, options);
+
+            personalBLL.InsertarPersonalTipoLicencia(tipoLicencia!, idPersonal, _configuration);
+
+            var hijoPersonal = JsonSerializer.Deserialize<List<PersonalHijoEntity>>(personalHijo, options);
+
+            personalBLL.InsertarHijo(hijoPersonal!, idPersonal, _configuration);
+
+            rutPersonal = personalEntity.RutPersonal;
+
+            return idPersonal;
+        }
+
+        public JsonResult ValidarRut(string rutPersonal)
+        {
+            BLL.Personal personal = new BLL.Personal();
+            bool existe = false;
+
+            var listadoPersonal = personal.ListarPersonal(rutPersonal.Replace(".",""), string.Empty, _configuration);
+
+            if(listadoPersonal.Count > 0)
+            {
+                existe = true;
+            }
+
+            return Json(new { existe });
         }
     }
 }

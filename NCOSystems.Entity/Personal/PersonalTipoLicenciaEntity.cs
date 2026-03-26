@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NCOSystems.Entity.Personal
+﻿namespace NCOSystems.Entity.Personal
 {
-    public class PersonalTipoLicencia
+    public class PersonalTipoLicenciaEntity
     {
         public int IdPersonalTipoLicencia { get; set; }
         public int IdPersonal { get; set; }
-        public int IdTipoLicencia { get; set; }
+        public string? IdTipoLicencia { get; set; }
         public string? NombreClaseLicencia { get; set; }
         public DateTime? FechaVctoLicencia { get; set; }
         public string? IdUsuario { get; set; }

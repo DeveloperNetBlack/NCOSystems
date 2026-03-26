@@ -2,236 +2,173 @@
 @using GridMvc
 @addTagHelper *, GridMvc
 @model PersonalViewModel
-<style>
-    .form-controlDT {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: var(--bs-body-color);
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-color: var(--bs-body-bg);
-        background-clip: padding-box;
-        border: var(--bs-border-width) solid var(--bs-border-color);
-        border-radius: var(--bs-border-radius);
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-</style>
-<div class="row">
-    <h2>Ingreso de Datos</h2>
-</div>
 
-@* Menú tab *@
-<ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Personal</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="licencia-tab" data-bs-toggle="tab" data-bs-target="#licencia" type="button" role="tab" aria-controls="licencia" aria-selected="false">Licencias Conducir</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="documento-tab" data-bs-toggle="tab" data-bs-target="#documento" type="button" role="tab" aria-controls="documento" aria-selected="false">Documentos</button>
-    </li>
-</ul>
+<div class="row" style="margin-top: 2rem; margin-bottom: 3rem;">
+
+    <div style="font-size: 2.5rem; font-weight: 750; color: var(--text-title-color);
+        display: flex; justify-content: center; align-items: center; position: relative;">
+        
+        <a asp-controller="Personal" asp-action="Index" style="position: absolute; left: 0;">
+            <img src="img/logoNCO.png" alt="" style="width: 9rem;" />
+        </a>
+
+        <span class="name">
+            Formulario de Ingreso
+        </span>
+
+    </div>
+
+</div>
 
 @* Contenido tabs *@
 @using (Html.BeginForm("Create", "Personal", FormMethod.Post))
 {
-    <div class="tab-content" id="tabPersonal">
-        <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
-                <div class="row">
-                    <div class="form-group col-md-2">
-                        <label for="rutUsuario">Rut</label>
-                        @Html.TextBoxFor(m => m.RutPersonal, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="idUsuario">Nombre</label>
-                        @Html.TextBoxFor(m => m.NombrePersonal, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="nombrePersona">Ap. Paterno</label>
-                        @Html.TextBoxFor(m => m.ApellidoPaternoPersonal, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="apellidoPaterno">Ap. Materno</label>
-                        @Html.TextBoxFor(m => m.ApellidoMaternoPersonal, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="apellidoMaterno">Región</label>
-                        @Html.DropDownList("ddlRegion", new SelectList(Model.regionEntities, "IdRegion", "NombreRegion"), "Seleccione una Región", new { @class = "form-control" })
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="correoElectronico">Comuna</label>
-                        @Html.DropDownList("ddlComuna", ViewBag.ListaComuna as List<SelectListItem>, "Seleccione una Comuna", new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="apellidoMaterno">Teléfono</label>
-                        @Html.TextBoxFor(m => m.TelefonoPersonal, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="correoElectronico">E-Mail</label>
-                        @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-2">
-                        <label for="fecLicenciaB">Fecha Licencia Clase B</label>
-                        @Html.TextBoxFor(m => m.FechaLicenciaClaseB, new { @class = "form-control", @readonly = true })
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-6">
-                    <label for="edadHijo">Hijos y Edad</label>
-                    @Html.TextAreaFor(m => m.EdadHijo, new { @class = "form-control", style = "width: 500px; height: 120px;" })
-                    </div>
-                </div>
+    <div class="row">
+        <div class="form-group col-md-2">
+            <label for="rutUsuario">Rut</label>
+            @Html.TextBoxFor(m => m.RutPersonal, new { @class = "form-control" })
         </div>
-        <div class="tab-pane fade" id="licencia" role="tabpanel" aria-labelledby="licencia-tab">
-                <div class="row">
-                    <h3>Tipos de Licencias</h3>
-                    <div class="row">
-                        @await Html.Grid(Model.personalTipoLicenciaEntities).Named("gridTipoLicencia").Columns(c =>
-                        {
-                            c.Add(model => model.NombreClaseLicencia).Titled("Nombre").SetWidth(20);
-                            c.Add()
-                            .Encoded(false)
-                            .Sanitized(false)
-                            .SetWidth(30)
-                            .Titled("Fecha Vcto Licencia")
-                            .RenderValueAs(o => @Html.TextBoxFor(m => m.FechaVctoLicencia, new { @class = "form-controlDT", @readonly = true, id = "FechaVctoLicencia" + o.IdTipoLicencia }));
-                        }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
-                </div>
+        <div class="form-group col-md-6">
+            <label for="idUsuario">Nombre</label>
+            @Html.TextBoxFor(m => m.NombrePersonal, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="nombrePersona">Ap. Paterno</label>
+            @Html.TextBoxFor(m => m.ApellidoPaternoPersonal, new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-6">
+            <label for="apellidoPaterno">Ap. Materno</label>
+            @Html.TextBoxFor(m => m.ApellidoMaternoPersonal, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="apellidoMaterno">Región</label>
+            @Html.DropDownList("ddlRegion", new SelectList(Model.regionEntities, "IdRegion", "NombreRegion"), "Seleccione una Región", new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-6">
+            <label for="correoElectronico">Comuna</label>
+            @Html.DropDownList("ddlComuna", ViewBag.ListaComuna as List<SelectListItem>, "Seleccione una Comuna", new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="apellidoMaterno">Teléfono</label>
+            @Html.TextBoxFor(m => m.TelefonoPersonal, new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-6">
+            <label for="correoElectronico">E-Mail</label>
+            @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group col-md-2">
+        <label for="fecVctoLicenciaB">Fecha Vcto. Licencia B</label>
+        @Html.TextBoxFor(m => m.FechaLicenciaClaseB, new { @class = "form-control" })
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <h4>Edad e Hijos</h4>
+
+        <div class="row">
+            <div class="form-group col-md-2">
+                <label for="nombreHijo">Nombre Hijo</label>
+                @Html.TextBoxFor(m => m.NombreHijo, new { @class = "form-control" })
+            </div>
+            <div class="form-group col-md-3">
+                <label for="fecLicencia">Edad</label>
+                @Html.TextBoxFor(m => m.EdadHijo, new { @class = "form-control" })
+            </div>
+            <div class="form-group col-md-3 d-flex align-items-end">
+                <button type="button" id="btnAgregarHijo" class="btn btn-primary">
+                    Agregar
+                </button>
             </div>
         </div>
-        <div class="tab-pane fade" id="documento" role="tabpanel" aria-labelledby="documento-tab">
-            <div class="row">
-                <h3>Documentación</h3>
-                <div class="row">
-                    @await Html.Grid(Model.tipoDocumentoEntities).Named("gridTipoDocumento").Columns(c =>
-                                    {
-                            c.Add(model => model.IdTipoDocumento, true);
-                            c.Add(model => model.NombreTipoDocumento).Titled("Nombre").SetWidth(20);
-                            c.Add()
-                            .Encoded(false)
-                            .Sanitized(false)
-                            .SetWidth(30)
-                            .Titled("Archivo")
-                            .RenderValueAs(o => "<input type='file' class='form-control' id='fileArchivo' name='fileArchivo' />");
-                        }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
-                </div>
+
+        <!-- Grilla -->
+        <table id="tablaHijo" class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre Hijo</th>
+                    <th>Edad</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las filas se agregan aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <h4>Tipos de Licencias</h4>
+
+        <div class="row">
+            <div class="form-group col-md-2">
+                <label for="fecVctoLicencia">Fecha Vcto. Licencia</label>
+                @Html.TextBoxFor(m => m.FechaVctoLicencia, new { @class = "form-control" })
             </div>
+            <div class="form-group col-md-3">
+                <label for="fecLicencia">Fecha Licencia</label>
+                @Html.DropDownList("ddlTipoLicencia", new SelectList(Model.tipoLicenciaEntities, "IdTipoLicencia", "NombreTipo"), "Seleccione una Licencia", new { @class = "form-control" })
+            </div>
+            <div class="form-group col-md-3 d-flex align-items-end">
+                <button type="button" id="btnAgregar" class="btn btn-primary">
+                    Agregar
+                </button>
+            </div>
+        </div>
+
+        <!-- Grilla -->
+        <table id="tablaLicencias" class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo de Licencia</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las filas se agregan aquí dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <h4>Documentación</h4>
+        <div class="row">
+            @await Html.Grid(Model.tipoDocumentoEntities).Named("gridTipoDocumento").Columns(c =>
+            {
+                c.Add(model => model.IdTipoDocumento, true);
+                c.Add(model => model.NombreTipoDocumento).Titled("Nombre").SetWidth(20);
+                c.Add()
+                .Encoded(false)
+                .Sanitized(false)
+                .SetWidth(30)
+                .Titled("Archivo")
+                .RenderValueAs(o => $"<input type='file' class='form-control file-documento' " + $"data-id='{o.IdTipoDocumento}' " + $"data-nombre='{o.NombreTipoDocumento}' />");
+            }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
         </div>
     </div>
 
-    <button type="submit" class="btn btn-info" style="margin-top: 2rem;">Grabar</button>
+    <!-- Contenedor de hidden inputs DENTRO del form -->
+    <div id="hiddenContainerPersonalTipoLicencia"></div>
+    <div id="hiddenContainerPersonalHijo"></div>
+    <!-- ✅ Contenedor donde se renderiza el PartialView Mensajeria -->
+    <div id="resultadoMensaje"></div>
+    <button type="button" id="btnGrabar" name="btnGrabar" class="btn btn-info" style="margin-top: 2rem;">Grabar</button>
 }
 
 @section Scripts {
-    <script type="text/javascript">
-        $(document).ready(function () {
-             $('#ddlRegion').change(function () {
-
-                 var regionId = $(this).val();
-
-                 $('#ddlComuna').empty(); // Clear existing options
-
-                 if (regionId) {
-                     $.ajax({
-                         url: '@Url.Action("GetComuna", "Personal")', // Adjust controller name
-                         type: "GET",
-                         dataType: "JSON",
-                         data: { idRegion: regionId },
-                         success: function (data) {
-                             $('#ddlComuna').append($('<option></option>').val('').html('Selecione una Comuna'));
-                             $.each(data, function (i, item) {
-                                 $('#ddlComuna').append($('<option></option>').val(item.idComuna).html(item.nombreComuna));
-                             });
-                         },
-                         error: function (ex) {
-                             alert('Error al leer las comunas.' + ex);
-                         }
-                     });
-                 } else {
-                     $('#ddlComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
-                 }
-             });
-         });
-
-         $("#FechaLicenciaClaseB").datepicker({
-                changeMonth: true,
-                changeYear: true,
-                minDate:"01/01/1900"
-         });
-
-         // $("#FechaVctoLicencia").datepicker({
-         //        changeMonth: true,
-         //        changeYear: true,
-         //        minDate:"01/01/1900"
-         // });
-
-         $("#RutPersonal").Rut({
-               on_error: function()
-               {
-                   alert('Rut incorrecto');
-               },
-               format_on: 'keyup'
-         })
-
-         $('.form-controlDT').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                minDate:"01/01/1900"
-         });
-
-         $("#btnAgregarLicencia").click(function(){
-
-                 // Realiza la solicitud Ajax
-                $.ajax({
-                    type: 'POST', // El tipo de solicitud HTTP
-                    url: '@Url.Action("AgregarLicencia", "Personal")', // La URL a la que se envía la solicitud
-                    data: { fecVctoLicencia: $('#FechaVctoLicencia').val(), tipoLicencia: $("#ddlTipoLicencia").val() } , // Los datos que se envían al servidor
-                    dataType: "json", // Espera una respuesta JSON
-                    success: function(response) {
-                        // Maneja la respuesta exitosa
-                        console.log(response);
-                        window.location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        // Maneja los errores
-                        $('#responseMessage').html("An error occurred: " + error);
-                    }
-                });
-         });
-
-         function eliminarFila(idTipo)
-         {
-                $.ajax({
-                    type: 'POST', // El tipo de solicitud HTTP
-                    url: '@Url.Action("EliminarLicencia", "Personal")', // La URL a la que se envía la solicitud
-                    data: { idPersonalTipoLicencia: idTipo } , // Los datos que se envían al servidor
-                    dataType: "json", // Espera una respuesta JSON
-                    success: function(response) {
-                        // Maneja la respuesta exitosa
-                        console.log(response);
-                        window.location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        // Maneja los errores
-                        $('#responseMessage').html("An error occurred: " + error);
-                    }
-                });
-         }
-
+    <script>
+        var getComuna_Url = '@Url.Action("GetComuna", "Personal")';
+         var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
     </script>
+    <script src="~/js/Formulario.js"></script>
 }
 
