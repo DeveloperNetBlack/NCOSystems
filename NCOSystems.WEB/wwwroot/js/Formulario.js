@@ -3,7 +3,7 @@
     // ==========================================
     // DDL Región -> Comunas
     // ==========================================
-    $('#ddlRegion').change(function () {
+    $('#IdRegion').change(function () {
         var regionId = $(this).val();
         $('#ddlComuna').empty();
 
@@ -14,9 +14,9 @@
                 dataType: "JSON",
                 data: { idRegion: regionId },
                 success: function (data) {
-                    $('#ddlComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
+                    $('#IdComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
                     $.each(data, function (i, item) {
-                        $('#ddlComuna').append($('<option></option>').val(item.idComuna).html(item.nombreComuna));
+                        $('#IdComuna').append($('<option></option>').val(item.idComuna).html(item.nombreComuna));
                     });
                 },
                 error: function (ex) {
@@ -24,66 +24,23 @@
                 }
             });
         } else {
-            $('#ddlComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
+            $('#IdComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
         }
     });
 
     // ==========================================
     // Datepickers
     // ==========================================
-    $("#FechaLicenciaClaseB").datepicker({
-        changeMonth: true,
-        changeYear: true,
-        minDate: "01/01/1900"
-    });
-
     $("#FechaVctoLicencia").datepicker({
         changeMonth: true,
         changeYear: true,
         minDate: "01/01/1900"
     });
 
-    // ==========================================
-    // Validación RUT
-    // ==========================================
-    $("#RutPersonal").Rut({
-        on_error: function () {
-            alert('Rut incorrecto');
-        },
-        format_on: 'keyup'
-    });
-
-    $("#RutPersonal").blur(function () {
-        const rut = $(this).val();
-
-        if (!rut) return;
-
-        $.ajax({
-            url: validarRut_Url, // Definir en la vista: var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
-            type: "GET",
-            dataType: "JSON",
-            data: { rutPersonal: rut },
-            success: function (data) {
-                if (data.existe) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'RUT ya registrado',
-                        text: 'El RUT ingresado ya existe en el sistema.',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        $("#RutPersonal").val("").focus();
-                    });
-                }
-            },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo validar el RUT. Intente nuevamente.',
-                    confirmButtonText: 'OK'
-                });
-            }
-        });
+    $("#FecOtorgamiento").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        minDate: "01/01/1900"
     });
 
     // ==========================================
@@ -92,11 +49,12 @@
     let rowCount = 0;
 
     $("#btnAgregar").click(function () {
-        const fecha = $("#FechaVctoLicencia").val();
+        const fechaVctoLicencia = $("#FechaVctoLicencia").val();
+        const fechaOtorgamiento = $("#FecOtorgamiento").val();
         const tipoLicencia = $("#ddlTipoLicencia").val();
         const descripcion = $("#ddlTipoLicencia option:selected").text();
 
-        if (!fecha || !tipoLicencia) {
+        if (!fechaVctoLicencia || !tipoLicencia || !fechaOtorgamiento) {
             alert("Por favor completa todos los campos.");
             return;
         }
@@ -105,7 +63,8 @@
 
         const newRow = `
             <tr id="row_${uid}">
-                <td>${fecha}</td>
+                <td>${fechaOtorgamiento}</td>
+                <td>${fechaVctoLicencia}</td>
                 <td>${descripcion}</td>
                 <td>
                     <button type="button" class="btn btn-danger btn-sm btnEliminar" data-row="${uid}">
@@ -121,12 +80,14 @@
         div.id = `hidden-${uid}`;
         div.innerHTML = `
             <input type="hidden" name="personalTipoLicenciaEntities.Index" value="${uid}" />
-            <input type="hidden" name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia" value="${fecha}" />
+            <input type="hidden" name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia" value="${fechaVctoLicencia}" />
+            <input type="hidden" name="personalTipoLicenciaEntities[${uid}].FecOtorgamiento" value="${fechaOtorgamiento}" />
             <input type="hidden" name="personalTipoLicenciaEntities[${uid}].IdTipoLicencia" value="${tipoLicencia}" />
         `;
         hiddenContainer.appendChild(div);
 
         $("#FechaVctoLicencia").val("");
+        $("#FecOtorgamiento").val("");
         $("#ddlTipoLicencia").val("");
     });
 
@@ -193,15 +154,49 @@
     document.getElementById("btnGrabar").addEventListener("click", async function () {
         const btn = this;
 
+        // ✅ Validación formulario
+        var form = $('form').first();
+        if (!form.data('validator')) {
+            $.validator.unobtrusive.parse(form);
+        }
+        var esValido = form.data('validator') ? form.valid() : true;
+        if (!esValido) {
+            return;
+        }
+
+        // ✅ Validación archivos obligatorios
+        const inputs = document.querySelectorAll("input.file-documento");
+        const documentosFaltantes = [];
+
+        inputs.forEach(input => {
+            const nombreTipo = input.getAttribute("data-nombre");
+            if (input.files.length === 0) {
+                documentosFaltantes.push(nombreTipo);
+                input.classList.add("is-invalid");
+            } else {
+                input.classList.remove("is-invalid");
+            }
+        });
+
+        if (documentosFaltantes.length > 0) {
+            const lista = documentosFaltantes.map(n => `<li>${n}</li>`).join("");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Documentos faltantes',
+                html: `<p>Por favor adjunta los siguientes documentos:</p><ul style="text-align:left">${lista}</ul>`,
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+
         const personalData = {
             RutPersonal: document.getElementById("RutPersonal")?.value || "",
             NombrePersonal: document.getElementById("NombrePersonal")?.value || "",
-            ApellidoPaternoPersonal: document.getElementById("ApellidoPaternoPersonal")?.value || "",
-            ApellidoMaternoPersonal: document.getElementById("ApellidoMaternoPersonal")?.value || "",
+            ApPaternoPersonal: document.getElementById("ApPaternoPersonal")?.value || "",
+            ApMaternoPersonal: document.getElementById("ApMaternoPersonal")?.value || "",
             TelefonoPersonal: document.getElementById("TelefonoPersonal")?.value || "",
             CorreoElectronico: document.getElementById("CorreoElectronico")?.value || "",
-            FecLicenciaB: document.getElementById("FechaLicenciaClaseB")?.value || "",
-            IdComuna: document.getElementById("ddlComuna")?.value || ""
+            IdComuna: document.getElementById("IdComuna")?.value || ""
         };
 
         // Recopila Tipos de Licencias
@@ -212,7 +207,8 @@
             const uid = div.id.replace('hidden-', '');
             datoPersonalTipoLicencia.push({
                 idTipoLicencia: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].IdTipoLicencia"]`).value,
-                fechaVctoLicencia: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia"]`).value
+                fecVctoLicencia: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia"]`).value,
+                fecOtorgamiento: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FecOtorgamiento"]`).value
             });
         });
 
@@ -229,7 +225,6 @@
         });
 
         // Recopila documentos
-        const inputs = document.querySelectorAll("input.file-documento");
         const formData = new FormData();
 
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;

@@ -21,11 +21,12 @@ namespace NCOSystems.WEB.Models
 
         public List<TipoDocumentoEntity> tipoDocumentoEntities { get; set; } = new();
 
-        public string? FechaLicenciaClaseB { get; set; }
-        
+        public List<DocumentoEntity> documentoEntities { get; set; } = new();
+
         public string? FechaVctoLicencia { get; set; }
+        public string? FecOtorgamiento { get; set; }
 
         public string? NombreHijo { get; set; }
-        public int EdadHijo { get; set; }
+        public int? EdadHijo { get; set; }
     }
 }

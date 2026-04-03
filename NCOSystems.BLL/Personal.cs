@@ -56,5 +56,12 @@ namespace NCOSystems.BLL
             DAL.Personal personal = new DAL.Personal();
             return personal.ListarPersonalHijo(idPersonal, configuration);
         }
+
+        public List<PersonalTipoLicenciaEntity> ListarPersonalTipoLicencia(int idPersonal, IConfiguration configuration)
+        {
+            DAL.Personal personal = new DAL.Personal();
+
+            return personal.ListarPersonalTipoLicencia(idPersonal, configuration);
+        }
     }
 }

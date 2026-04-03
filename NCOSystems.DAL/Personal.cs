@@ -24,11 +24,10 @@ namespace NCOSystems.DAL
             parameters.addParameters("@PI_ID_COMUNA", TypeData.DataType.Int, 0, ParameterDirection.Input, Convert.ToInt32(personalEntity.IdComuna));
             parameters.addParameters("@PI_RUT_PERSONAL", TypeData.DataType.Varchar, 12, ParameterDirection.Input, personalEntity.RutPersonal!);
             parameters.addParameters("@PI_NOMBRE_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.NombrePersonal!);
-            parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApellidoPaternoPersonal!);
-            parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApellidoMaternoPersonal!);
+            parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApPaternoPersonal!);
+            parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApMaternoPersonal!);
             parameters.addParameters("@PI_TELEFONO_PERSONAL", TypeData.DataType.Varchar, 50, ParameterDirection.Input, personalEntity.TelefonoPersonal!);
             parameters.addParameters("@PI_CORREO_ELECTRONICO", TypeData.DataType.Varchar, 90, ParameterDirection.Input, personalEntity.CorreoElectronico!);
-            parameters.addParameters("@PI_FEC_LICENCIA_B", TypeData.DataType.Date, 0, ParameterDirection.Input, Convert.ToDateTime(personalEntity.FecLicenciaB));
             parameters.addParameters("@PI_IND_VIGENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalEntity.IndVigencia);
             parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalEntity.IdUsuario!);
 
@@ -56,11 +55,10 @@ namespace NCOSystems.DAL
             parameters.addParameters("@PI_ID_COMUNA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalEntity.IdComuna!);
             parameters.addParameters("@PI_RUT_PERSONAL", TypeData.DataType.Varchar, 12, ParameterDirection.Input, personalEntity.RutPersonal!);
             parameters.addParameters("@PI_NOMBRE_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.NombrePersonal!);
-            parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApellidoPaternoPersonal!);
-            parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApellidoMaternoPersonal!);
+            parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApPaternoPersonal!);
+            parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApMaternoPersonal!);
             parameters.addParameters("@PI_TELEFONO_PERSONAL", TypeData.DataType.Varchar, 50, ParameterDirection.Input, personalEntity.TelefonoPersonal!);
             parameters.addParameters("@PI_CORREO_ELECTRONICO", TypeData.DataType.Varchar, 90, ParameterDirection.Input, personalEntity.CorreoElectronico!);
-            parameters.addParameters("@PI_FEC_LICENCIA_B", TypeData.DataType.Date, 0, ParameterDirection.Input, Convert.ToDateTime(personalEntity.FecLicenciaB));
             parameters.addParameters("@PI_IND_VIGENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalEntity.IndVigencia);
             parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalEntity.IdUsuario!);
 
@@ -95,7 +93,8 @@ namespace NCOSystems.DAL
 
             parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonal);
             parameters.addParameters("@PI_ID_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdTipoLicencia!);
-            parameters.addParameters("@PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, Convert.ToDateTime(personalTipoLicenciaEntity.FechaVctoLicencia));
+            parameters.addParameters("@PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, Convert.ToDateTime(personalTipoLicenciaEntity.FecVctoLicencia));
+            parameters.addParameters("@PI_FEC_OTORGAMIENTO", TypeData.DataType.Date, 0, ParameterDirection.Input, Convert.ToDateTime(personalTipoLicenciaEntity.FecOtorgamiento));
             parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalTipoLicenciaEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
@@ -145,6 +144,29 @@ namespace NCOSystems.DAL
             else
             {
                 return new List<PersonalHijoEntity>();
+            }
+        }
+
+        public List<PersonalTipoLicenciaEntity> ListarPersonalTipoLicencia(int idPersonal, IConfiguration configuration)
+        {
+            Connection<PersonalTipoLicenciaEntity> conn = new(configuration);
+            Parameters parameters = new Parameters();
+
+            conn.Devolution = TypeRefund.Register.Entity;
+
+            parameters.NameProcedure = "SP_SEL_PERSONAL_TIPO_LICENCIA";
+
+            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonal);
+
+            conn.ExecuteSQL(parameters);
+
+            if (conn.ReturnEntity != null)
+            {
+                return conn.ReturnEntity.ToList();
+            }
+            else
+            {
+                return new List<PersonalTipoLicenciaEntity>();
             }
         }
     }

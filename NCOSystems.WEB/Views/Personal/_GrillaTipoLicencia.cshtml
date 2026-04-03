@@ -5,7 +5,7 @@
 
 @await Html.Grid(Model).Named("gridTipoLicencia").Columns(c =>
 {
-    c.Add(model => model.FechaVctoLicencia).Titled("Fecha Vcto Licencia").SetWidth(150).Format("{0:dd/MM/yyyy}");
+    c.Add(model => model.FecVctoLicencia).Titled("Fecha Vcto Licencia").SetWidth(150).Format("{0:dd/MM/yyyy}");
     c.Add(model => model.NombreClaseLicencia).Titled("Nombre").SetWidth(150);
     c.Add()
     .Encoded(false)

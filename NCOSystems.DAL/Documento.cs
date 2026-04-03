@@ -22,7 +22,7 @@ namespace NCOSystems.DAL
             parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdPersona);
             parameters.addParameters("@PI_ID_TIPO_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdTipoDocumento);
             parameters.addParameters("@PI_NOMBRE_DOCUMENTO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, documentoEntity.NombreDocumento!);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario);
+            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
 

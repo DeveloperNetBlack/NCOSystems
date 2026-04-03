@@ -4,9 +4,10 @@
     {
         public int IdPersonalTipoLicencia { get; set; }
         public int IdPersonal { get; set; }
-        public string? IdTipoLicencia { get; set; }
+        public int IdTipoLicencia { get; set; }
         public string? NombreClaseLicencia { get; set; }
-        public DateTime? FechaVctoLicencia { get; set; }
+        public DateTime? FecVctoLicencia { get; set; }
+        public DateTime? FecOtorgamiento { get; set; }
         public string? IdUsuario { get; set; }
     }
 }

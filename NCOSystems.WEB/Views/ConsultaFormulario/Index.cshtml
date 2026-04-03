@@ -1,0 +1,64 @@
+﻿@using GridCore
+@using GridMvc
+@addTagHelper *, GridMvc
+@model PersonalViewModel
+
+<div class="row" style="margin-top: 2rem; margin-bottom: 3rem;">
+
+    <div style="font-size: 2.5rem; font-weight: 750; color: var(--text-title-color);
+        display: flex; justify-content: center; align-items: center; position: relative;">
+        
+        <a asp-controller="Personal" asp-action="Index" style="position: absolute; left: 0;">
+            <img src="img/logoNCO.png" alt="" style="width: 9rem;" />
+        </a>
+
+        <span class="name">
+            Consulta Formulario de Ingreso
+        </span>
+
+    </div>
+
+</div>
+
+@using (Html.BeginForm("Listar", "ConsultaFormulario", FormMethod.Post))
+{
+    <div class="row">
+        <div class="form-group col-md-2">
+            <label for="rutUsuario">Rut</label>
+            @Html.TextBoxFor(m => m.RutPersonal, new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-6">
+            <label for="idUsuario">Nombre</label>
+            @Html.TextBoxFor(m => m.NombrePersonal, new { @class = "form-control" })
+        </div>
+        <div class="form-group col-md-1 d-flex justify-content-center">
+            <button class="btn btn-info" type="submit">
+                Buscar
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="row">
+            @await Html.Grid(Model.ListaPersonal).Named("gridTipoDocumento").Columns(c =>
+            {
+                c.Add(model => model.RutPersonal).Titled("Rut").SetWidth(5);
+                c.Add(model => model.NombreCompletoPersonal).Titled("Nombre").SetWidth(20);
+                c.Add()
+                .Encoded(false)
+                .Sanitized(false)
+                .SetWidth(30)
+                .Titled("Archivo")
+                .RenderValueAs(o => $"<b><a class='modal_link' href='ConsultaFormulario/GetPersonal?rutPersonal={o.RutPersonal}'>Ver</a></b>");
+            }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
+    </script>
+    <script src="~/js/funcionesBasicas.js"></script>
+}
+

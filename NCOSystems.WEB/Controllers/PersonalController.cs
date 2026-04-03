@@ -79,6 +79,10 @@ namespace NCOSystems.WEB.Controllers
 
             try
             {
+                if(documentos.Count() == 0 || documentos.Any(x => x.Archivo == null))
+                {
+                    return Json(new { isError = true, mensaje = "Debe adjuntar todos los documentos", url = "/Personal" });
+                }
 
                 idPersonal = Grabar(personalData, datoPersonalTipoLicencia, datoPersonalHijo, out rutPersonal);
 
@@ -140,11 +144,10 @@ namespace NCOSystems.WEB.Controllers
             personalEntity.IdComuna = persona!.IdComuna;
             personalEntity.RutPersonal = persona.RutPersonal!.Replace(".","").ToUpper();
             personalEntity.NombrePersonal = persona.NombrePersonal!.ToUpper();
-            personalEntity.ApellidoPaternoPersonal = persona.ApellidoPaternoPersonal!.ToUpper();
-            personalEntity.ApellidoMaternoPersonal = persona.ApellidoMaternoPersonal!.ToUpper();
+            personalEntity.ApPaternoPersonal = persona.ApPaternoPersonal!.ToUpper();
+            personalEntity.ApMaternoPersonal = persona.ApMaternoPersonal!.ToUpper();
             personalEntity.TelefonoPersonal = persona.TelefonoPersonal;
             personalEntity.CorreoElectronico = persona.CorreoElectronico;
-            personalEntity.FecLicenciaB = persona.FecLicenciaB;
             personalEntity.IndVigencia = 1;
             personalEntity.IdUsuario = "ADMIN";
 
