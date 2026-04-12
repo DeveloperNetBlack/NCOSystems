@@ -28,5 +28,8 @@ namespace NCOSystems.WEB.Models
 
         public string? NombreHijo { get; set; }
         public int? EdadHijo { get; set; }
+
+        public string? NombrePersonaCompleto { get; set; }
+        public string? RutPersona { get; set; }
     }
 }

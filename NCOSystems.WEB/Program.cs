@@ -1,9 +1,19 @@
+using Microsoft.Extensions.FileProviders;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+app.UseStaticFiles(); // Enables serving static files from wwwroot
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+    Path.Combine(Directory.GetCurrentDirectory(), "Documento")),
+    RequestPath = new PathString("/Documento")
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

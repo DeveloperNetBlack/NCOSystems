@@ -165,7 +165,10 @@
                 .Sanitized(false)
                 .SetWidth(30)
                 .Titled("Archivo")
-                .RenderValueAs(o => $"<input type='file' class='form-control file-documento' " + $"data-id='{o.IdTipoDocumento}' " + $"data-nombre='{o.NombreTipoDocumento}' />");
+                .RenderValueAs(o => $"<input type='file' class='form-control file-documento' " +
+                    $"data-id='{o.IdTipoDocumento}' " +
+                    $"data-nombre='{o.NombreTipoDocumento}' " +
+                    $"{(o.NombreTipoDocumento!.Trim().ToUpper() == "REGISTRO SOCIAL DE HOGAR" ? "data-excluir='true'" : "")} />");
             }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
         </div>
     </div>

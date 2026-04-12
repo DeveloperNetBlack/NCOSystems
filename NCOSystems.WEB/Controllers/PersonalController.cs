@@ -1,8 +1,6 @@
-﻿using GridMvc.Server;
-using GridShared;
+﻿using FluentFTP;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Data.SqlClient.DataClassification;
 using NCOSystems.Entity.Parametro;
 using NCOSystems.Entity.Personal;
 using NCOSystems.WEB.Helpers;
@@ -35,7 +33,6 @@ namespace NCOSystems.WEB.Controllers
             model.regionEntities = parametro.ListarRegion(_configuration);
             model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
             model.tipoDocumentoEntities = parametro.ListarTipoDocumento(_configuration);
-            //model.FechaLicenciaClaseB = DateTime.Today.ToShortDateString();
 
             model.personalTipoLicenciaEntities = new List<PersonalTipoLicenciaEntity>();
 
@@ -50,7 +47,7 @@ namespace NCOSystems.WEB.Controllers
         public JsonResult GetComuna(int idRegion)
         {
             BLL.Parametro parametro = new BLL.Parametro();
-            
+
             var listadoComuna = parametro.ListarComuna(idRegion, _configuration);
 
             return Json(listadoComuna);
@@ -74,12 +71,12 @@ namespace NCOSystems.WEB.Controllers
         public async Task<IActionResult> Create(string personalData, string datoPersonalTipoLicencia, string datoPersonalHijo, [FromForm] List<TipoDocumentoEntity> documentos)
         {
             int idPersonal = 0;
-            string rutPersonal = string.Empty;  
+            string rutPersonal = string.Empty;
             BLL.Documento documentoBLL = new BLL.Documento();
 
             try
             {
-                if(documentos.Count() == 0 || documentos.Any(x => x.Archivo == null))
+                if (documentos.Count() == 0 || documentos.Any(x => x.Archivo == null))
                 {
                     return Json(new { isError = true, mensaje = "Debe adjuntar todos los documentos", url = "/Personal" });
                 }
@@ -89,33 +86,97 @@ namespace NCOSystems.WEB.Controllers
                 var archivosGuardados = new List<object>();
                 var errores = new List<string>();
 
-                foreach (var doc in documentos)
+                //Conexión FTP fuera del foreach para no reconectar en cada iteración
+                using (var cliente = new AsyncFtpClient(
+                    _configuration["FTP:Host"],
+                    _configuration["FTP:Usuario"],
+                    _configuration["FTP:Password"]))
                 {
+                    //Configuración FTPS(FTP Seguro)
+                    cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
+                    cliente.Config.ValidateAnyCertificate = false; // Cambiar a false en producción con certificado válido
 
-                    var carpeta = Path.Combine("wwwroot", @"Documento\" + rutPersonal.Replace(".", "").Replace("-", ""));
+                    await cliente.Connect();
 
-                    if (!Directory.Exists(carpeta))
-                        Directory.CreateDirectory(carpeta);
-
-                    var rutaCompleta = Path.Combine(carpeta, doc.Archivo!.FileName);
-
-                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    foreach (var doc in documentos)
                     {
-                        await doc.Archivo.CopyToAsync(stream);
+                        var carpetaRemota = _configuration["FTP:RutaBase"] + "/" + rutPersonal.Replace(".", "").Replace("-", "");
+
+                        //Leer el archivo en memoria antes de enviarlo por FTP
+                        using var memoryStream = new MemoryStream();
+                        await doc.Archivo!.CopyToAsync(memoryStream);
+                        memoryStream.Position = 0;
+
+                        var rutaArchivoRemoto = $"{carpetaRemota}/{doc.Archivo.FileName}";
+
+                        try
+                        {
+                            //Crear carpeta remota si no existe
+                            if (!await cliente.DirectoryExists(carpetaRemota))
+                                await cliente.CreateDirectory(carpetaRemota);
+
+                            //Subir archivo al FTP
+                            var resultado = await cliente.UploadStream(
+                                memoryStream,
+                                rutaArchivoRemoto,
+                                FtpRemoteExists.Overwrite,
+                                createRemoteDir: true
+                            );
+
+                            if (resultado == FtpStatus.Failed)
+                                throw new Exception($"Error al subir el archivo {doc.Archivo.FileName} al FTP.");
+
+                            //Guardar en BD solo si el FTP fue exitoso
+                            documentoBLL.Insertar(new DocumentoEntity
+                            {
+                                IdPersona = idPersonal,
+                                IdTipoDocumento = doc.IdTipoDocumento,
+                                NombreDocumento = doc.Archivo.FileName,
+                                IdUsuario = "ADMIN"
+                            }, _configuration);
+                        }
+                        catch (Exception ex)
+                        {
+                        //Rollback: si el archivo se subió al FTP pero falló la BD, eliminarlo del FTP
+                            if (await cliente.FileExists(rutaArchivoRemoto))
+                                await cliente.DeleteFile(rutaArchivoRemoto);
+
+                            //Puedes loggear el error o relanzar la excepción según tu necesidad
+                            throw new Exception($"Error procesando el archivo {doc.Archivo.FileName}: {ex.Message}", ex);
+                        }
                     }
 
-                    // Aquí puedes guardar en BD:
-                    documentoBLL.Insertar(new DocumentoEntity
-                    {
-                        IdPersona = idPersonal,
-                        IdTipoDocumento = doc.IdTipoDocumento,
-                        NombreDocumento = doc.Archivo.FileName,
-                        IdUsuario = "ADMIN"
-                    }, _configuration);
+                    await cliente.Disconnect();
                 }
 
+                //foreach (var doc in documentos)
+                //{
+
+                //    //var carpeta = Path.Combine("/wwwroot",@"Documento/" + rutPersonal.Replace(".", "").Replace("-", ""));
+                //    var carpeta = _configuration["FTP:RutaBase"] + "/" + rutPersonal.Replace(".", "").Replace("-", "");
+
+                //    if (!Directory.Exists(carpeta))
+                //        Directory.CreateDirectory(carpeta);
+
+                //    var rutaCompleta = Path.Combine(carpeta, doc.Archivo!.FileName);
+
+                //    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                //    {
+                //        await doc.Archivo.CopyToAsync(stream);
+                //    }
+
+                //    // Aquí puedes guardar en BD:
+                //    documentoBLL.Insertar(new DocumentoEntity
+                //    {
+                //        IdPersona = idPersonal,
+                //        IdTipoDocumento = doc.IdTipoDocumento,
+                //        NombreDocumento = doc.Archivo.FileName,
+                //        IdUsuario = "ADMIN"
+                //    }, _configuration);
+                //}
+
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return Json(new { isError = true, mensaje = ex.Message, url = "/Personal" });
             }
@@ -142,7 +203,7 @@ namespace NCOSystems.WEB.Controllers
             var persona = JsonSerializer.Deserialize<PersonalViewModel>(personalData, options);
 
             personalEntity.IdComuna = persona!.IdComuna;
-            personalEntity.RutPersonal = persona.RutPersonal!.Replace(".","").ToUpper();
+            personalEntity.RutPersonal = persona.RutPersonal!.Replace(".", "").ToUpper();
             personalEntity.NombrePersonal = persona.NombrePersonal!.ToUpper();
             personalEntity.ApPaternoPersonal = persona.ApPaternoPersonal!.ToUpper();
             personalEntity.ApMaternoPersonal = persona.ApMaternoPersonal!.ToUpper();
@@ -171,9 +232,9 @@ namespace NCOSystems.WEB.Controllers
             BLL.Personal personal = new BLL.Personal();
             bool existe = false;
 
-            var listadoPersonal = personal.ListarPersonal(rutPersonal.Replace(".",""), string.Empty, _configuration);
+            var listadoPersonal = personal.ListarPersonal(rutPersonal.Replace(".", ""), string.Empty, _configuration);
 
-            if(listadoPersonal.Count > 0)
+            if (listadoPersonal.Count > 0)
             {
                 existe = true;
             }

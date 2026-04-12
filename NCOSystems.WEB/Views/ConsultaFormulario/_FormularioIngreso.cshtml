@@ -8,68 +8,83 @@
 }
 
 <div class="row" style="margin-top: 2rem; margin-bottom: 3rem;">
-
     <div style="font-size: 2.5rem; font-weight: 750; color: var(--text-title-color);
-        display: flex; justify-content: center; align-items: center; position: relative;">
-        
-        <a asp-controller="Personal" asp-action="Index" style="position: absolute; left: 0;">
-            <img src="img/logoNCO.png" alt="" style="width: 9rem;" />
+        display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+
+        <a asp-controller="ConsultaFormulario" asp-action="Index" style="flex-shrink: 0;">
+            <img src="~/img/logoNCO.png" alt="" style="width: 9rem;" />
         </a>
-
-        <span class="name">
-            Consulta Formulario de Ingreso
+        <span class="name" style="flex: 1; text-align: center; min-width: 200px;">
+            Formulario de Ingreso
         </span>
-
+        <!-- Espaciador invisible para centrar el título correctamente en pantallas grandes -->
+        <div style="width: 9rem; flex-shrink: 0;"></div>
     </div>
-
 </div>
 
-@using (Html.BeginForm("Create", "Personal", FormMethod.Post))
+@using (Html.BeginForm("Update", "ConsultaFormulario", FormMethod.Post))
 {
     <div class="row">
         <div class="form-group col-md-2">
             <label for="rutUsuario">Rut</label>
             @Html.TextBoxFor(m => m.RutPersonal, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.RutPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
             <label for="idUsuario">Nombre</label>
             @Html.TextBoxFor(m => m.NombrePersonal, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.NombrePersonal, "", new { @class = "text-danger" })
         </div>
     </div>
+    <br />
     <div class="row">
         <div class="form-group col-md-6">
             <label for="nombrePersona">Ap. Paterno</label>
-            @Html.TextBoxFor(m => m.ApPaternoPersonal, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.ApPaternoPersonal, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.ApPaternoPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
             <label for="apellidoPaterno">Ap. Materno</label>
-            @Html.TextBoxFor(m => m.ApMaternoPersonal, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.ApMaternoPersonal, new { @class = "form-control", required = "required" })
         </div>
     </div>
-@*     <div class="row">
+    <br />
+    <div class="row">
         <div class="form-group col-md-6">
-            <label for="apellidoMaterno">Región</label>
-            @Html.DropDownList("ddlRegion", new SelectList(Model.regionEntities, "IdRegion", "NombreRegion"), "Seleccione una Región", new { @class = "form-control" })
+            <label for="IdRegion">Región</label>
+            @Html.DropDownListFor(m => m.IdRegion,
+                new SelectList(Model.regionEntities, "IdRegion", "NombreRegion"),
+                "Seleccione una Región",
+                new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.IdRegion, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
-            <label for="correoElectronico">Comuna</label>
-            @Html.DropDownList("ddlComuna", ViewBag.ListaComuna as List<SelectListItem>, "Seleccione una Comuna", new { @class = "form-control" })
+            <label for="IdComuna">Comuna</label>
+            @Html.DropDownListFor(m => m.IdComuna,
+                new SelectList(Enumerable.Empty<SelectListItem>()),
+                "Seleccione una Comuna",
+                new { @class = "form-control", data_selected = Model.IdComuna })
+            @Html.ValidationMessageFor(m => m.IdComuna, "", new { @class = "text-danger" })
         </div>
-    </div> *@
+    </div>
+    <br />
     <div class="row">
         <div class="form-group col-md-6">
             <label for="apellidoMaterno">Teléfono</label>
-            @Html.TextBoxFor(m => m.TelefonoPersonal, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.TelefonoPersonal, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.TelefonoPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
             <label for="correoElectronico">E-Mail</label>
-            @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control" })
+            @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.CorreoElectronico, "", new { @class = "text-danger" })
         </div>
     </div>
     <br />
     <br />
     <div class="row">
         <h4>Edad e Hijos</h4>
+
         <div class="row">
             @await Html.Grid(Model.personalHijoEntities).Named("gridTipoDocumento").Columns(c =>
             {
@@ -82,10 +97,12 @@
     <br />
     <div class="row">
         <h4>Tipos de Licencias</h4>
+
         <div class="row">
             @await Html.Grid(Model.personalTipoLicenciaEntities).Named("gridTipoDocumento").Columns(c =>
             {
                 c.Add(model => model.NombreClaseLicencia).Titled("Tipo Licencia").SetWidth(10);
+                c.Add(Model => Model.FecOtorgamiento).Titled("Fec. Otorgamiento").SetWidth(10).Format("{0:dd/MM/yyyy}");
                 c.Add(model => model.FecVctoLicencia).Titled("Fec. Vcto.").SetWidth(10).Format("{0:dd/MM/yyyy}");
             }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
         </div>
@@ -105,20 +122,20 @@
                 .Sanitized(false)
                 .SetWidth(30)
                 .Titled("Archivo")
-                .RenderValueAs(o => $"<b><a class='modal_link' href='{o.RutaDocumento}'>{o.NombreDocumento}</a></b>");
+                .RenderValueAs(o => $"<b><a class='modal_link' target='_blank' href='{o.RutaDocumento}'>{o.NombreDocumento}</a></b>");
             }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
         </div>
     </div>
 
-    <button type="button" id="btnGrabar" name="btnGrabar" class="btn btn-info" style="margin-top: 2rem;">Grabar</button>
+    <a asp-action="Index" asp-controller="ConsultaFormulario" class="btn btn-primary" style="margin-top: 2rem;">Volver</a>
 }
 
 @section Scripts {
     <script>
-        var getComuna_Url = '@Url.Action("GetComuna", "Personal")';
-        var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
+        var getComuna_Url = '@Url.Action("GetComuna", "ConsultaFormulario")';
+        var validarRut_Url = '@Url.Action("ValidarRut", "ConsultaFormulario")';
     </script>
-    <script src="~/js/Formulario.js"></script>
+    <script src="~/js/FormularioConsulta.js"></script>
     <script src="~/js/funcionesBasicas.js"></script>
 }
 

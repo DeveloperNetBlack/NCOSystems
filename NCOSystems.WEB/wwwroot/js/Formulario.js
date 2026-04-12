@@ -1,11 +1,49 @@
 ﻿$(document).ready(function () {
 
     // ==========================================
+    // Validación de Rut
+    // ==========================================
+    $("#RutPersonal").blur(function () {
+        const rut = $(this).val();
+
+        if (!rut) return;
+
+        $.ajax({
+            url: validarRut_Url, // Definir en la vista: var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
+            type: "GET",
+            dataType: "JSON",
+            data: { rutPersonal: rut },
+            success: function (data) {
+                if (data.existe) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'RUT ya registrado',
+                        text: 'El RUT ingresado ya existe en el sistema.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        $("#RutPersonal").val("").focus();
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo validar el RUT. Intente nuevamente.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+
+    // ==========================================
     // DDL Región -> Comunas
     // ==========================================
-    $('#IdRegion').change(function () {
-        var regionId = $(this).val();
-        $('#ddlComuna').empty();
+
+    // Función reutilizable para cargar comunas
+    function cargarComunas(regionId, callback) {
+        $('#IdComuna').empty();
 
         if (regionId) {
             $.ajax({
@@ -18,6 +56,11 @@
                     $.each(data, function (i, item) {
                         $('#IdComuna').append($('<option></option>').val(item.idComuna).html(item.nombreComuna));
                     });
+
+                    // Ejecutar callback si existe (usado al editar)
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 },
                 error: function (ex) {
                     alert('Error al leer las comunas.' + ex);
@@ -26,7 +69,22 @@
         } else {
             $('#IdComuna').append($('<option></option>').val('').html('Seleccione una Comuna'));
         }
+    }
+
+    // Evento change del dropdown de Región
+    $('#IdRegion').change(function () {
+        cargarComunas($(this).val());
     });
+
+    // Al cargar la página: si hay región seleccionada, cargar comunas y seleccionar la comuna guardada
+    var comunaGuardada = $('#IdComuna').data('selected') || '';
+    var regionActual = $('#IdRegion').val();
+
+    if (regionActual && comunaGuardada) {
+        cargarComunas(regionActual, function () {
+            $('#IdComuna').val(comunaGuardada);
+        });
+    }
 
     // ==========================================
     // Datepickers
@@ -151,25 +209,22 @@
     // ==========================================
     // Botón Grabar (fetch async)
     // ==========================================
-    document.getElementById("btnGrabar").addEventListener("click", async function () {
-        const btn = this;
+    async function handleBtnGrabar() {                          // 👈 1) Se extrae la lógica a una función nombrada
+        const btn = document.getElementById("btnGrabar");
 
-        // ✅ Validación formulario
         var form = $('form').first();
         if (!form.data('validator')) {
             $.validator.unobtrusive.parse(form);
         }
         var esValido = form.data('validator') ? form.valid() : true;
-        if (!esValido) {
-            return;
-        }
+        if (!esValido) return;
 
-        // ✅ Validación archivos obligatorios
         const inputs = document.querySelectorAll("input.file-documento");
         const documentosFaltantes = [];
 
         inputs.forEach(input => {
             const nombreTipo = input.getAttribute("data-nombre");
+            if (input.getAttribute("data-excluir") === "true") return;
             if (input.files.length === 0) {
                 documentosFaltantes.push(nombreTipo);
                 input.classList.add("is-invalid");
@@ -199,7 +254,6 @@
             IdComuna: document.getElementById("IdComuna")?.value || ""
         };
 
-        // Recopila Tipos de Licencias
         const hiddenContainerPersonalTipoLicencia = document.getElementById('hiddenContainerPersonalTipoLicencia');
         const divsPersonalTipoLicencia = hiddenContainerPersonalTipoLicencia.querySelectorAll('[id^="hidden-"]');
         const datoPersonalTipoLicencia = [];
@@ -212,7 +266,6 @@
             });
         });
 
-        // Recopila Personal Hijo
         const hiddenContainerPersonalHijo = document.getElementById('hiddenContainerPersonalHijo');
         const divsPersonalHijo = hiddenContainerPersonalHijo.querySelectorAll('[id^="hiddenHijo-"]');
         const datoPersonalHijo = [];
@@ -224,9 +277,17 @@
             });
         });
 
-        // Recopila documentos
-        const formData = new FormData();
+        if (datoPersonalTipoLicencia.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tipos de Licencias faltantes',
+                html: `<p>Por favor, se deben ingresar al menos un Tipo de Licencia</p>`,
+                confirmButtonText: "OK"
+            });
+            return;
+        }
 
+        const formData = new FormData();
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
         if (token) formData.append("__RequestVerificationToken", token);
 
@@ -278,6 +339,20 @@
         } finally {
             btn.disabled = false;
         }
-    });
+    }
 
+    function initBtnGrabar() {
+        const btn = document.getElementById("btnGrabar");
+
+        // Protección doble: verifica existencia y tipo
+        if (!btn || !(btn instanceof HTMLElement)) {
+            console.warn("initBtnGrabar: #btnGrabar no encontrado en esta página.");
+            return;
+        }
+
+        btn.addEventListener("click", handleBtnGrabar);
+        console.log("initBtnGrabar: listener registrado correctamente.");
+    }
+
+    initBtnGrabar();                                            // 👈 4) Se llama al inicializar
 });
