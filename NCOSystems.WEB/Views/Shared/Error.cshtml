@@ -1,25 +1,278 @@
 ﻿@model ErrorViewModel
 @{
     ViewData["Title"] = "Error";
+    var statusCode = Context.Response.StatusCode;
+    var requestId = Model?.RequestId;
+    var showRequestId = Model?.ShowRequestId ?? false;
+    var exceptionMessage = ViewData["ExceptionMessage"] as string;
+    var exceptionType = ViewData["ExceptionType"] as string;
+    var requestPath = Context.Request.Path;
+    var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+
+    string errorTitle = statusCode switch
+    {
+        400 => "Solicitud incorrecta",
+        401 => "No autorizado",
+        403 => "Acceso denegado",
+        404 => "Página no encontrada",
+        408 => "Tiempo de espera agotado",
+        429 => "Demasiadas solicitudes",
+        500 => "Error interno del servidor",
+        502 => "Error de puerta de enlace",
+        503 => "Servicio no disponible",
+        _   => "Algo salió mal"
+    };
+
+    string errorDescription = statusCode switch
+    {
+        400 => "La solicitud enviada no pudo ser procesada. Verifica los datos ingresados.",
+        401 => "Debes iniciar sesión para acceder a este recurso.",
+        403 => "No tienes permisos para acceder a este recurso.",
+        404 => "La página o recurso que buscas no existe o fue movido.",
+        408 => "El servidor tardó demasiado en responder. Intenta de nuevo.",
+        429 => "Has realizado demasiadas solicitudes. Espera un momento antes de continuar.",
+        500 => "Se produjo un error inesperado al procesar tu solicitud.",
+        502 => "El servidor recibió una respuesta inválida de un servicio externo.",
+        503 => "El servicio no está disponible temporalmente. Intenta más tarde.",
+        _   => "Se produjo un error inesperado al procesar tu solicitud."
+    };
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<style>
+    .err-wrap {
+        padding: 3rem 1.5rem;
+        max-width: 640px;
+        margin: 0 auto;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    .err-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #FEF2F2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .err-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: #DC2626;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .err-code {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: #DC2626;
+        text-transform: uppercase;
+        margin: 0 0 0.4rem;
+    }
+
+    .err-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 0.5rem;
+    }
+
+    .err-desc {
+        font-size: 15px;
+        color: #6B7280;
+        line-height: 1.6;
+        margin-bottom: 1.75rem;
+    }
+
+    .err-card {
+        background: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .err-row {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        font-size: 13px;
+        padding: 4px 0;
+    }
+
+    .err-label {
+        color: #9CA3AF;
+        min-width: 100px;
+        flex-shrink: 0;
+    }
+
+    .err-val {
+        color: #374151;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 12.5px;
+        word-break: break-all;
+    }
+
+    .err-exception {
+        border-left: 3px solid #FECACA;
+        padding: 0.85rem 1rem;
+        background: #FEF2F2;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 1.75rem;
+    }
+
+    .err-exception-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #B91C1C;
+        margin-bottom: 6px;
+    }
+
+    .err-exception pre {
+        margin: 0;
+        font-size: 12.5px;
+        color: #B91C1C;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    .err-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+
+    .err-btn {
+        padding: 9px 18px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid #D1D5DB;
+        background: #FFFFFF;
+        color: #374151;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.15s;
+    }
+
+    .err-btn:hover {
+        background: #F3F4F6;
+        text-decoration: none;
+        color: #374151;
+    }
+
+    .err-btn-primary {
+        background: #111827;
+        color: #FFFFFF;
+        border-color: transparent;
+    }
+
+    .err-btn-primary:hover {
+        background: #1F2937;
+        color: #FFFFFF;
+    }
+
+    .err-divider {
+        border: none;
+        border-top: 1px solid #F3F4F6;
+        margin: 0 0 1rem;
+    }
+
+    .err-footer {
+        font-size: 12px;
+        color: #9CA3AF;
+    }
+
+    @@media (prefers-color-scheme: dark) {
+        .err-title  { color: #F9FAFB; }
+        .err-desc   { color: #9CA3AF; }
+        .err-card   { background: #1F2937; border-color: #374151; }
+        .err-label  { color: #6B7280; }
+        .err-val    { color: #D1D5DB; }
+        .err-btn    { background: #1F2937; border-color: #374151; color: #D1D5DB; }
+        .err-btn:hover { background: #374151; color: #F9FAFB; }
+        .err-btn-primary { background: #F9FAFB; color: #111827; }
+        .err-btn-primary:hover { background: #E5E7EB; color: #111827; }
+        .err-divider { border-color: #1F2937; }
+        .err-icon   { background: #450A0A; }
+        .err-exception { background: #450A0A; border-color: #7F1D1D; }
+        .err-exception pre { color: #FCA5A5; }
+        .err-exception-title { color: #FCA5A5; }
+    }
+</style>
+
+<div class="err-wrap">
+    <div class="err-icon">
+        <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+    </div>
+
+    <p class="err-code">Error @statusCode</p>
+    <h1 class="err-title">@errorTitle</h1>
+    <p class="err-desc">@errorDescription</p>
+
+    <div class="err-card">
+        @if (showRequestId && !string.IsNullOrEmpty(requestId))
+        {
+            <div class="err-row">
+                <span class="err-label">Request ID</span>
+                <span class="err-val">@requestId</span>
+            </div>
+        }
+        <div class="err-row">
+            <span class="err-label">Timestamp</span>
+            <span class="err-val">@timestamp</span>
+        </div>
+        @if (!string.IsNullOrEmpty(requestPath))
+        {
+            <div class="err-row">
+                <span class="err-label">Path</span>
+                <span class="err-val">@requestPath</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(exceptionType))
+        {
+            <div class="err-row">
+                <span class="err-label">Tipo</span>
+                <span class="err-val">@exceptionType</span>
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(exceptionMessage))
+    {
+        <div class="err-exception">
+            <p class="err-exception-title">Detalle del error</p>
+            <pre>@exceptionMessage</pre>
+        </div>
+    }
+
+    <div class="err-actions">
+        <a href="/" class="err-btn err-btn-primary">← Volver al inicio</a>
+        <a href="javascript:location.reload()" class="err-btn">Recargar página</a>
+    </div>
+
+    <hr class="err-divider" />
+    <p class="err-footer">
+        Si el problema persiste, contacta al soporte técnico
+        @if (showRequestId && !string.IsNullOrEmpty(requestId))
+        {
+            <span>e incluye el Request ID: <strong>@requestId</strong></span>
+        }
     </p>
-}
+</div>
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NCOSystems.Entity.Parametro;
 using NCOSystems.Entity.Personal;
@@ -63,7 +64,11 @@ namespace NCOSystems.WEB.Controllers
                         TelefonoPersonal = item.TelefonoPersonal,
                         IndVigencia = item.IndVigencia,
                         CorreoElectronico = item.CorreoElectronico,
-                        IdPersonal = item.IdPersonal
+                        IdEstadoCivil = item.IdEstadoCivil,
+                        IdEstadoLaboral = item.IdEstadoLaboral,
+                        IdGenero = item.IdGenero,
+                        IdPersonal = item.IdPersonal,
+                        Correlativo = item.Correlativo
                     });
                 }
 
@@ -86,6 +91,9 @@ namespace NCOSystems.WEB.Controllers
             ViewBag.ListaComuna = new List<SelectListItem>();
 
             personalViewModel.regionEntities = parametro.ListarRegion(_configuration);
+            personalViewModel.estadoCivilEntities = parametro.ListarEstadoCivil(_configuration);
+            personalViewModel.estadoLaboralEntities = parametro.ListarEstadoLaboral(_configuration);
+            personalViewModel.generoEntities = parametro.ListarGenero(_configuration);
 
             try
             {
@@ -117,6 +125,9 @@ namespace NCOSystems.WEB.Controllers
                     personalViewModel.IndVigencia = item.IndVigencia;
                     personalViewModel.CorreoElectronico = item.CorreoElectronico;
                     personalViewModel.IdPersonal = item.IdPersonal;
+                    personalViewModel.IdEstadoCivil = item.IdEstadoCivil;
+                    personalViewModel.IdEstadoLaboral = item.IdEstadoLaboral;
+                    personalViewModel.IdGenero = item.IdGenero;
                 }
 
             }
@@ -141,6 +152,60 @@ namespace NCOSystems.WEB.Controllers
             }
 
             return Json(new { existe });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportarExcel(string rutPersonal, string nombrePersonal)
+        {
+            BLL.Personal personal = new BLL.Personal();
+
+            var rut = rutPersonal ?? string.Empty;
+            var nombre = nombrePersonal ?? string.Empty;
+
+            // Obtén la misma lista que usas en el Grid
+            var personalEntities = personal.ListarPersonal(rut.Replace(".", ""), nombre, _configuration);
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Personal");
+
+            // Encabezados
+            worksheet.Cell(1, 1).Value = "N°";
+            worksheet.Cell(1, 2).Value = "RUT";
+            worksheet.Cell(1, 3).Value = "Nombre";
+            worksheet.Cell(1, 4).Value = "Comuna";
+            worksheet.Cell(1, 5).Value = "Teléfono";
+
+            // Estilo encabezados
+            var headerRange = worksheet.Range("A1:E1");
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#2E75B6");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Datos
+            int fila = 2;
+            foreach (var persona in personalEntities)
+            {
+                worksheet.Cell(fila, 1).Value = persona.Correlativo;
+                worksheet.Cell(fila, 2).Value = persona.RutPersonal;
+                worksheet.Cell(fila, 3).Value = persona.NombreCompletoPersonal;
+                worksheet.Cell(fila, 4).Value = persona.NombreComuna;
+                worksheet.Cell(fila, 5).Value = persona.TelefonoPersonal;
+                fila++;
+            }
+
+            // Ajustar ancho de columnas automáticamente
+            worksheet.Columns().AdjustToContents();
+
+            // Retornar el archivo
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            string fileName = $"Personal_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            return File(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName);
         }
     }
 }

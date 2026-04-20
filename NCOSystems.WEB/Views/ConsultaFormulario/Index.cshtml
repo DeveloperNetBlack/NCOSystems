@@ -38,10 +38,18 @@
     <br />
     <div class="row">
         <div class="row">
+            <div class="mb-3">
+                <a id="btnExportar" href="#" class="btn btn-success" onclick="exportarExcel()">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </a>
+            </div>
             @await Html.Grid(Model.ListaPersonal).Named("gridTipoDocumento").Columns(c =>
             {
+                c.Add(model => model.Correlativo).Titled("N°").SetWidth(5);
                 c.Add(model => model.RutPersonal).Titled("Rut").SetWidth(5);
                 c.Add(model => model.NombreCompletoPersonal).Titled("Nombre").SetWidth(20);
+                c.Add(model => model.NombreComuna).Titled("Comuna").SetWidth(20);
+                c.Add(model => model.TelefonoPersonal).Titled("Teléfono").SetWidth(20);
                 c.Add()
                 .Encoded(false)
                 .Sanitized(false)
@@ -55,7 +63,7 @@
 
 @section Scripts {
     <script>
-         // ==========================================
+        // ==========================================
         // Validación RUT
         // ==========================================
         $("#RutPersona").Rut({
@@ -64,6 +72,22 @@
             },
             format_on: 'keyup'
         });
+
+        // ==========================================
+        // Exportar a Excel
+        // ==========================================
+        function exportarExcel() {
+            var rutPersonal   = document.getElementById('RutPersona').value;
+            var nombrePersonal = document.getElementById('NombrePersonaCompleto').value;
+
+            var url = '/ConsultaFormulario/ExportarExcel?rutPersonal='
+                      + encodeURIComponent(rutPersonal)
+                      + '&nombrePersonal='
+                      + encodeURIComponent(nombrePersonal);
+
+            window.location.href = url;
+        }
+
     </script>
 }
 

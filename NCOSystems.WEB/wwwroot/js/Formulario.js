@@ -9,7 +9,7 @@
         if (!rut) return;
 
         $.ajax({
-            url: validarRut_Url, // Definir en la vista: var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
+            url: validarRut_Url,
             type: "GET",
             dataType: "JSON",
             data: { rutPersonal: rut },
@@ -40,14 +40,12 @@
     // ==========================================
     // DDL Región -> Comunas
     // ==========================================
-
-    // Función reutilizable para cargar comunas
     function cargarComunas(regionId, callback) {
         $('#IdComuna').empty();
 
         if (regionId) {
             $.ajax({
-                url: getComuna_Url, // Definir en la vista: var getComuna_Url = '@Url.Action("GetComuna", "Personal")';
+                url: getComuna_Url,
                 type: "GET",
                 dataType: "JSON",
                 data: { idRegion: regionId },
@@ -56,8 +54,6 @@
                     $.each(data, function (i, item) {
                         $('#IdComuna').append($('<option></option>').val(item.idComuna).html(item.nombreComuna));
                     });
-
-                    // Ejecutar callback si existe (usado al editar)
                     if (typeof callback === 'function') {
                         callback();
                     }
@@ -71,12 +67,10 @@
         }
     }
 
-    // Evento change del dropdown de Región
     $('#IdRegion').change(function () {
         cargarComunas($(this).val());
     });
 
-    // Al cargar la página: si hay región seleccionada, cargar comunas y seleccionar la comuna guardada
     var comunaGuardada = $('#IdComuna').data('selected') || '';
     var regionActual = $('#IdRegion').val();
 
@@ -116,7 +110,13 @@
         const descripcion = $("#ddlTipoLicencia option:selected").text();
 
         if (!fechaVctoLicencia || !tipoLicencia || !fechaOtorgamiento) {
-            alert("Por favor completa todos los campos.");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Favor ingresar Fec. Otorgamiento, Fec. Vencimiento y seleccione el Tipo de Licencia.',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#3085d6'
+            });
             return;
         }
 
@@ -212,7 +212,7 @@
     // ==========================================
     // Botón Grabar (fetch async)
     // ==========================================
-    async function handleBtnGrabar() {                          // 👈 1) Se extrae la lógica a una función nombrada
+    async function handleBtnGrabar() {
         const btn = document.getElementById("btnGrabar");
 
         var form = $('form').first();
@@ -254,21 +254,55 @@
             ApMaternoPersonal: document.getElementById("ApMaternoPersonal")?.value || "",
             TelefonoPersonal: document.getElementById("TelefonoPersonal")?.value || "",
             CorreoElectronico: document.getElementById("CorreoElectronico")?.value || "",
-            IdComuna: document.getElementById("IdComuna")?.value || ""
+            IdComuna: document.getElementById("IdComuna")?.value || "",
+            IdEstadoCivil: document.getElementById("IdEstadoCivil")?.value || "",
+            IdEstadoLaboral: document.getElementById("IdEstadoLaboral")?.value || "",
+            IdGenero: document.getElementById("IdGenero")?.value || ""
         };
 
+        // ==========================================
+        // Recolección y validación de Licencias
+        // ==========================================
         const hiddenContainerPersonalTipoLicencia = document.getElementById('hiddenContainerPersonalTipoLicencia');
         const divsPersonalTipoLicencia = hiddenContainerPersonalTipoLicencia.querySelectorAll('[id^="hidden-"]');
         const datoPersonalTipoLicencia = [];
+        let licenciasConErrores = false;
+
         divsPersonalTipoLicencia.forEach(div => {
             const uid = div.id.replace('hidden-', '');
+
+            const idTipoLicencia = div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].IdTipoLicencia"]`).value.trim();
+            const fecVctoLicencia = div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia"]`).value.trim();
+            const fecOtorgamiento = div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FecOtorgamiento"]`).value.trim();
+
+            if (!idTipoLicencia || !fecVctoLicencia || !fecOtorgamiento) {
+                licenciasConErrores = true;
+                return;
+            }
+
             datoPersonalTipoLicencia.push({
-                idTipoLicencia: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].IdTipoLicencia"]`).value,
-                fecVctoLicencia: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FechaVctoLicencia"]`).value,
-                fecOtorgamiento: div.querySelector(`input[name="personalTipoLicenciaEntities[${uid}].FecOtorgamiento"]`).value
+                idTipoLicencia,
+                fecVctoLicencia,
+                fecOtorgamiento
             });
         });
 
+        console.log("Licencias ingresadas:", datoPersonalTipoLicencia);
+
+        if (licenciasConErrores) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Existen registros de licencia con campos vacíos. Por favor, complete todos los datos antes de continuar.',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#3085d6'
+            });
+            return;
+        }
+
+        // ==========================================
+        // Recolección de Hijos
+        // ==========================================
         const hiddenContainerPersonalHijo = document.getElementById('hiddenContainerPersonalHijo');
         const divsPersonalHijo = hiddenContainerPersonalHijo.querySelectorAll('[id^="hiddenHijo-"]');
         const datoPersonalHijo = [];
@@ -347,7 +381,6 @@
     function initBtnGrabar() {
         const btn = document.getElementById("btnGrabar");
 
-        // Protección doble: verifica existencia y tipo
         if (!btn || !(btn instanceof HTMLElement)) {
             console.warn("initBtnGrabar: #btnGrabar no encontrado en esta página.");
             return;
@@ -357,5 +390,5 @@
         console.log("initBtnGrabar: listener registrado correctamente.");
     }
 
-    initBtnGrabar();                                            // 👈 4) Se llama al inicializar
+    initBtnGrabar();
 });

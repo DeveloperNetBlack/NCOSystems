@@ -33,6 +33,9 @@ namespace NCOSystems.WEB.Controllers
             model.regionEntities = parametro.ListarRegion(_configuration);
             model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
             model.tipoDocumentoEntities = parametro.ListarTipoDocumento(_configuration);
+            model.estadoCivilEntities = parametro.ListarEstadoCivil(_configuration);
+            model.estadoLaboralEntities = parametro.ListarEstadoLaboral(_configuration);
+            model.generoEntities = parametro.ListarGenero(_configuration);
 
             model.personalTipoLicenciaEntities = new List<PersonalTipoLicenciaEntity>();
 
@@ -148,33 +151,6 @@ namespace NCOSystems.WEB.Controllers
 
                     await cliente.Disconnect();
                 }
-
-                //foreach (var doc in documentos)
-                //{
-
-                //    //var carpeta = Path.Combine("/wwwroot",@"Documento/" + rutPersonal.Replace(".", "").Replace("-", ""));
-                //    var carpeta = _configuration["FTP:RutaBase"] + "/" + rutPersonal.Replace(".", "").Replace("-", "");
-
-                //    if (!Directory.Exists(carpeta))
-                //        Directory.CreateDirectory(carpeta);
-
-                //    var rutaCompleta = Path.Combine(carpeta, doc.Archivo!.FileName);
-
-                //    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-                //    {
-                //        await doc.Archivo.CopyToAsync(stream);
-                //    }
-
-                //    // Aquí puedes guardar en BD:
-                //    documentoBLL.Insertar(new DocumentoEntity
-                //    {
-                //        IdPersona = idPersonal,
-                //        IdTipoDocumento = doc.IdTipoDocumento,
-                //        NombreDocumento = doc.Archivo.FileName,
-                //        IdUsuario = "ADMIN"
-                //    }, _configuration);
-                //}
-
             }
             catch (Exception ex)
             {
@@ -209,6 +185,9 @@ namespace NCOSystems.WEB.Controllers
             personalEntity.ApMaternoPersonal = persona.ApMaternoPersonal!.ToUpper();
             personalEntity.TelefonoPersonal = persona.TelefonoPersonal;
             personalEntity.CorreoElectronico = persona.CorreoElectronico;
+            personalEntity.IdEstadoCivil = persona.IdEstadoCivil;
+            personalEntity.IdEstadoLaboral = persona.IdEstadoLaboral;
+            personalEntity.IdGenero = persona.IdGenero;
             personalEntity.IndVigencia = 1;
             personalEntity.IdUsuario = "ADMIN";
 

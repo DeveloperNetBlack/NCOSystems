@@ -1,6 +1,7 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using NCOSystems.WEB.Models;
+using System.Diagnostics;
 
 namespace NCOSystems.WEB.Controllers
 {
@@ -19,7 +20,18 @@ namespace NCOSystems.WEB.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+
+            if (exceptionFeature?.Error is not null)
+            {
+                ViewData["ExceptionMessage"] = exceptionFeature.Error.Message;
+                ViewData["ExceptionType"] = exceptionFeature.Error.GetType().Name;
+            }
+
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }

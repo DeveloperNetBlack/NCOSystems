@@ -95,5 +95,47 @@ namespace NCOSystems.DAL
                 return new List<TipoLicenciaEntity>();
             }
         }
+
+        public List<EstadoCivilEntity> ListarEstadoCivil(IConfiguration configuration)
+        {
+            Connection<EstadoCivilEntity> conn = new(configuration);
+            Parameters parameters = new Parameters();
+
+            conn.Devolution = TypeRefund.Register.Entity;
+
+            parameters.NameProcedure = "SP_SEL_ESTADO_CIVIL";
+
+            conn.ExecuteSQL(parameters);
+
+            if (conn.ReturnEntity != null)
+            {
+                return conn.ReturnEntity.ToList();
+            }
+            else
+            {
+                return new List<EstadoCivilEntity>();
+            }
+        }
+
+        public List<EstadoLaboralEntity> ListarEstadoLaboral(IConfiguration configuration)
+        {
+            Connection<EstadoLaboralEntity> conn = new(configuration);
+            Parameters parameters = new Parameters();
+
+            conn.Devolution = TypeRefund.Register.Entity;
+
+            parameters.NameProcedure = "SP_SEL_ESTADO_LABORAL";
+
+            conn.ExecuteSQL(parameters);
+
+            if (conn.ReturnEntity != null)
+            {
+                return conn.ReturnEntity.ToList();
+            }
+            else
+            {
+                return new List<EstadoLaboralEntity>();
+            }
+        }
     }
 }

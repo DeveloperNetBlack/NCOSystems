@@ -34,5 +34,24 @@ namespace NCOSystems.BLL
 
             return parametro.ListarTipoLicencia(configuration);
         }
+
+        public List<EstadoCivilEntity> ListarEstadoCivil(IConfiguration configuration)
+        {
+            DAL.Parametro parametro = new DAL.Parametro();
+
+            return parametro.ListarEstadoCivil(configuration);
+        }
+
+        public List<EstadoLaboralEntity> ListarEstadoLaboral(IConfiguration configuration)
+        {
+            DAL.Parametro parametro = new DAL.Parametro();
+
+            return parametro.ListarEstadoLaboral(configuration);
+        }
+
+        public List<GeneroEntity> ListarGenero(IConfiguration configuration)
+        {
+            return new List<GeneroEntity> { new GeneroEntity { IdGenero = 1, DescripcionGenero = "MASCULINO" }, new GeneroEntity { IdGenero = 2, DescripcionGenero = "FEMENINO" } };
+        }
     }
 }

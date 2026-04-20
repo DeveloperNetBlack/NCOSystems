@@ -77,6 +77,32 @@
         </div>
     </div>
     <br />
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label for="IdEstadoCivil">Estado Civil</label>
+            @Html.DropDownListFor(m => m.IdEstadoCivil,
+                new SelectList(Model.estadoCivilEntities, "IdEstadoCivil", "NombreEstadoCivil"),
+                "Seleccione un Estado Civil",
+                new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.IdEstadoCivil, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group col-md-4">
+            <label for="IdEstadoLaboral">Estado Laboral</label>
+            @Html.DropDownListFor(m => m.IdEstadoLaboral,
+                new SelectList(Model.estadoLaboralEntities, "IdEstadoLaboral", "NombreEstadoLaboral"),
+                "Seleccione un Estado Laboral",
+                new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.IdEstadoLaboral, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group col-md-4">
+            <label for="IdGenero">Sexo</label>
+            @Html.DropDownListFor(m => m.IdGenero,
+                new SelectList(Model.generoEntities, "IdGenero", "DescripcionGenero"),
+                "Seleccione Sexo",
+                new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.IdGenero, "", new { @class = "text-danger" })
+        </div>
+    </div>
     <br />
     <div class="row">
         <h4>Edad e Hijos</h4>

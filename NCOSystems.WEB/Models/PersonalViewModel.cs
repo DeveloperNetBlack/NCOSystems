@@ -23,6 +23,12 @@ namespace NCOSystems.WEB.Models
 
         public List<DocumentoEntity> documentoEntities { get; set; } = new();
 
+        public List<EstadoCivilEntity> estadoCivilEntities { get; set; } = new();
+
+        public List<EstadoLaboralEntity> estadoLaboralEntities { get; set; } = new();
+
+        public List<GeneroEntity> generoEntities { get; set; } = new();
+
         public string? FechaVctoLicencia { get; set; }
         public string? FecOtorgamiento { get; set; }
 

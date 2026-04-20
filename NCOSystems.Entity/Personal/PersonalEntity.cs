@@ -12,6 +12,15 @@ namespace NCOSystems.Entity.Personal
         [Required(ErrorMessage = "Debe seleccionar una región")]
         public int IdRegion { get; set; }
 
+        [Required(ErrorMessage = "Debe seleccionar un Estado Civil")]
+        public int IdEstadoCivil { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar Sexo")]
+        public int IdGenero { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar un Estado Laboral")]    
+        public int IdEstadoLaboral { get; set; }
+
         [Required(ErrorMessage = "El RUT es obligatorio")]
         public string? RutPersonal { get; set; }
 
@@ -35,7 +44,15 @@ namespace NCOSystems.Entity.Personal
 
         public string? NombreRegion { get; set; }
 
+        public string? NombreEstadoCivil { get; set; } = null;
+
+        public string? NombreGenero { get; set; } = null;
+
+        public string? NombreEstadoLaboral { get; set; } = null;
+
         public int IndVigencia { get; set; }
+
+        public int Correlativo { get; set; }
 
         public string? IdUsuario { get; set; }
 
