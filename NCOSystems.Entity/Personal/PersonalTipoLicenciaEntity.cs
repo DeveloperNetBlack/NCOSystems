@@ -1,4 +1,6 @@
-﻿namespace NCOSystems.Entity.Personal
+﻿using NCOSystems.Entity.Parametro;
+
+namespace NCOSystems.Entity.Personal
 {
     public class PersonalTipoLicenciaEntity
     {
@@ -11,5 +13,6 @@
         public DateTime FechaVctoLicencia => Convert.ToDateTime(FecVctoLicencia!.Substring(6, 4) + "-" + FecVctoLicencia.Substring(3, 2) + "-" + FecVctoLicencia.Substring(0, 2));
         public DateTime FechaOtorgamiento => Convert.ToDateTime(FecOtorgamiento!.Substring(6, 4) + "-" + FecOtorgamiento.Substring(3, 2) + "-" + FecOtorgamiento.Substring(0, 2));
         public string? IdUsuario { get; set; }
+        public List<TipoLicenciaEntity>? tipoLicenciaEntities { get; set; }
     }
 }

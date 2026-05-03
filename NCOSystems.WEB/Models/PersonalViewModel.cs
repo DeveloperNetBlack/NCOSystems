@@ -31,6 +31,7 @@ namespace NCOSystems.WEB.Models
 
         public string? FechaVctoLicencia { get; set; }
         public string? FecOtorgamiento { get; set; }
+        public string? NombreClaseLicencia { get; set; }
 
         public string? NombreHijo { get; set; }
         public int? EdadHijo { get; set; }

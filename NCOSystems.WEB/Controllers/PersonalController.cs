@@ -132,7 +132,7 @@ namespace NCOSystems.WEB.Controllers
                             //Guardar en BD solo si el FTP fue exitoso
                             documentoBLL.Insertar(new DocumentoEntity
                             {
-                                IdPersona = idPersonal,
+                                IdPersonal = idPersonal,
                                 IdTipoDocumento = doc.IdTipoDocumento,
                                 NombreDocumento = doc.Archivo.FileName,
                                 IdUsuario = "ADMIN"
@@ -165,6 +165,8 @@ namespace NCOSystems.WEB.Controllers
             int idPersonal = 0;
             PersonalEntity personalEntity = new PersonalEntity();
             BLL.Personal personalBLL = new BLL.Personal();
+            BLL.PersonalHijo personalHijoBLL = new BLL.PersonalHijo();
+            BLL.PersonalTipoLicencia personalTipo = new BLL.PersonalTipoLicencia();
 
             var options = new JsonSerializerOptions
             {
@@ -195,11 +197,11 @@ namespace NCOSystems.WEB.Controllers
 
             var tipoLicencia = JsonSerializer.Deserialize<List<PersonalTipoLicenciaEntity>>(personalTipoLicencia, options);
 
-            personalBLL.InsertarPersonalTipoLicencia(tipoLicencia!, idPersonal, _configuration);
+            personalTipo.InsertarPersonalTipoLicencia(tipoLicencia!, idPersonal, _configuration);
 
             var hijoPersonal = JsonSerializer.Deserialize<List<PersonalHijoEntity>>(personalHijo, options);
 
-            personalBLL.InsertarHijo(hijoPersonal!, idPersonal, _configuration);
+            personalHijoBLL.InsertarHijo(hijoPersonal!, idPersonal, _configuration);
 
             rutPersonal = personalEntity.RutPersonal;
 

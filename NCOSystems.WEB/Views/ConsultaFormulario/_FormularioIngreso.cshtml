@@ -17,13 +17,16 @@
         <span class="name" style="flex: 1; text-align: center; min-width: 200px;">
             Formulario de Ingreso
         </span>
-        <!-- Espaciador invisible para centrar el título correctamente en pantallas grandes -->
         <div style="width: 9rem; flex-shrink: 0;"></div>
     </div>
 </div>
 
-@using (Html.BeginForm("Update", "ConsultaFormulario", FormMethod.Post))
+@using (Html.BeginForm("EditFormulario", "ConsultaFormulario", FormMethod.Post))
 {
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="IdPersonal" />
+
     <div class="row">
         <div class="form-group col-md-2">
             <label for="rutUsuario">Rut</label>
@@ -101,67 +104,180 @@
         <div class="form-group col-md-4">
             <label for="IdGenero">Sexo</label>
             @Html.DropDownListFor(m => m.IdGenero,
-                new SelectList(Model.generoEntities, "IdGenero", "DescripcionGenero"),
+                new SelectList(Model.generoEntities, "IdGenero", "NombreGenero"),
                 "Seleccione Sexo",
                 new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdGenero, "", new { @class = "text-danger" })
         </div>
     </div>
     <br />
-    <div class="row">
+
+    <button type="submit" id="btnGrabar" name="btnGrabar" class="btn btn-info" style="margin-top: 2rem;">Actualizar</button>
+    <a asp-action="Index" asp-controller="ConsultaFormulario" class="btn btn-primary" style="margin-top: 2rem;">Volver</a>
+
+    <br />
+    <br />
+}
+
+
+<!-- ==================== GRILLA HIJOS ==================== -->
+<div class="row">
+    <div class="d-flex justify-content-between align-items-center mb-2">
         <h4>Edad e Hijos</h4>
-
-        <div class="row">
-            @await Html.Grid(Model.personalHijoEntities).Named("gridTipoDocumento").Columns(c =>
-            {
-                c.Add(model => model.NombreHijo).Titled("Nombre Hijo").SetWidth(10);
-                c.Add(model => model.EdadHijo).Titled("Edad").SetWidth(5);
-            }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
-        </div>
+        <button type="button" class="btn btn-success btn-sm" id="btn-agregar-hijo"
+                data-personal="@Model.IdPersonal" data-rut="@Model.RutPersonal">
+            + Agregar Hijo
+        </button>
     </div>
-    <br />
-    <br />
     <div class="row">
-        <h4>Tipos de Licencias</h4>
-
-        <div class="row">
-            @await Html.Grid(Model.personalTipoLicenciaEntities).Named("gridTipoDocumento").Columns(c =>
-            {
-                c.Add(model => model.NombreClaseLicencia).Titled("Tipo Licencia").SetWidth(10);
-                c.Add(Model => Model.FecOtorgamiento).Titled("Fec. Otorgamiento").SetWidth(10).Format("{0:dd/MM/yyyy}");
-                c.Add(model => model.FecVctoLicencia).Titled("Fec. Vcto.").SetWidth(10).Format("{0:dd/MM/yyyy}");
-            }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
-        </div>
-    </div>
-    <br />
-    <br />
-    <div class="row">
-        <h4>Documentación</h4>
-        <div class="row">
-            @await Html.Grid(Model.documentoEntities).Named("gridTipoDocumento").Columns(c =>
-            {
-                c.Add(model => model.IdDocumento, true);
-                c.Add(model => model.NombreTipoDocumento).Titled("Nombre Documento").SetWidth(10);
-                c.Add(model => model.NombreDocumento).Titled("Nombre Archivo").SetWidth(20);
-                c.Add()
+        @await Html.Grid(Model.personalHijoEntities).Named("gridHijos").Columns(c =>
+        {
+            c.Add(model => model.NombreHijo).Titled("Nombre Hijo").SetWidth(10);
+            c.Add(model => model.EdadHijo).Titled("Edad").SetWidth(5);
+            c.Add()
                 .Encoded(false)
                 .Sanitized(false)
-                .SetWidth(30)
+                .SetWidth(15)
+                .Titled("Acciones")
+                .RenderValueAs(model =>
+                    $@"<a href='#' class='btn btn-warning btn-sm me-1 btn-editar-hijo'
+                               data-id='{model.IdPersonalHijo}' data-personal='{Model.IdPersonal}'>
+                               <i class='bi bi-pencil-fill'></i> Editar
+                           </a>
+                           <button type='button' class='btn btn-danger btn-sm btn-eliminar-hijo'
+                               data-id='{model.IdPersonalHijo}' data-nombre='{model.NombreHijo}'>
+                               <i class='bi bi-trash-fill'></i> Eliminar
+                           </button>"
+                );
+        }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+    </div>
+</div>
+
+<br />
+<br />
+
+<!-- ==================== GRILLA LICENCIAS ==================== -->
+<div class="row">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Tipos de Licencias</h4>
+        <button type="button" class="btn btn-success btn-sm" id="btn-agregar-licencia"
+                data-personal="@Model.IdPersonal" data-rut="@Model.RutPersonal">
+            + Agregar Licencia
+        </button>
+    </div>
+    <div class="row">
+        @await Html.Grid(Model.personalTipoLicenciaEntities).Named("gridLicencias").Columns(c =>
+        {
+            c.Add(model => model.NombreClaseLicencia).Titled("Tipo Licencia").SetWidth(10);
+            c.Add(model => model.FecOtorgamiento).Titled("Fec. Otorgamiento").SetWidth(10).Format("{0:dd/MM/yyyy}");
+            c.Add(model => model.FecVctoLicencia).Titled("Fec. Vcto.").SetWidth(10).Format("{0:dd/MM/yyyy}");
+            c.Add()
+                .Encoded(false)
+                .Sanitized(false)
+                .SetWidth(15)
+                .Titled("Acciones")
+                .RenderValueAs(model =>
+                    $@"<a href='#' class='btn btn-warning btn-sm me-1 btn-editar-licencia'
+                               data-id='{model.IdPersonalTipoLicencia}' data-personal='{Model.IdPersonal}'>
+                               <i class='bi bi-pencil-fill'></i> Editar
+                           </a>
+                           <button type='button' class='btn btn-danger btn-sm btn-eliminar-licencia'
+                               data-id='{model.IdPersonalTipoLicencia}' data-nombre='{model.NombreClaseLicencia}'>
+                               <i class='bi bi-trash-fill'></i> Eliminar
+                           </button>"
+                );
+        }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+    </div>
+</div>
+<br />
+<br />
+
+<!-- ==================== GRILLA DOCUMENTACIÓN ==================== -->
+<div class="row">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Documentación</h4>
+        <button type="button" class="btn btn-success btn-sm" id="btn-agregar-documento"
+                data-personal="@Model.IdPersonal" data-rut="@Model.RutPersonal">
+            + Agregar Documento
+        </button>
+    </div>
+    <div class="row">
+        @await Html.Grid(Model.documentoEntities).Named("gridDocumentos").Columns(c =>
+        {
+            c.Add(model => model.IdDocumento, true);
+            c.Add(model => model.NombreTipoDocumento).Titled("Nombre Documento").SetWidth(10);
+            c.Add(model => model.NombreDocumento).Titled("Nombre Archivo").SetWidth(10);
+            c.Add()
+                .Encoded(false)
+                .Sanitized(false)
+                .SetWidth(10)
                 .Titled("Archivo")
-                .RenderValueAs(o => $"<b><a class='modal_link' target='_blank' href='{o.RutaDocumento}'>{o.NombreDocumento}</a></b>");
-            }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+                .RenderValueAs(o =>
+                    $"<b><a class='modal_link' target='_blank' href='{o.RutaDocumento}'>{o.NombreDocumento}</a></b>");
+            c.Add()
+                .Encoded(false)
+                .Sanitized(false)
+                .SetWidth(25)
+                .Titled("Acciones")
+                .RenderValueAs(model =>
+                    $@"<a href='#' class='btn btn-warning btn-sm me-1 btn-editar-documento'
+                               data-id='{model.IdDocumento}' data-personal='{Model.IdPersonal}'>
+                               <i class='bi bi-pencil-fill'></i> Editar
+                           </a>
+                           <button type='button' class='btn btn-danger btn-sm btn-eliminar-documento'
+                               data-id='{model.IdDocumento}' data-nombre='{model.NombreDocumento}'>
+                               <i class='bi bi-trash-fill'></i> Eliminar
+                           </button>"
+                );
+        }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+    </div>
+</div>
+
+
+<!-- ==================== MODALES (fuera del form Update) ==================== -->
+<!-- Modal Crear/Editar Hijo -->
+<div class="modal fade" id="modalHijo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modalHijoContent">
+            <!-- Se carga dinámicamente vía AJAX -->
         </div>
     </div>
+</div>
 
-    <a asp-action="Index" asp-controller="ConsultaFormulario" class="btn btn-primary" style="margin-top: 2rem;">Volver</a>
-}
+<!-- Modal Crear/Editar Licencia -->
+<div class="modal fade" id="modalLicencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modalLicenciaContent">
+            <!-- Se carga dinámicamente vía AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear/Editar Documento -->
+<div class="modal fade" id="modalDocumento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modalDocumentoContent">
+            <!-- Se carga dinámicamente vía AJAX -->
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        var getComuna_Url = '@Url.Action("GetComuna", "ConsultaFormulario")';
-        var validarRut_Url = '@Url.Action("ValidarRut", "ConsultaFormulario")';
+        var getComuna_Url        = '@Url.Action("GetComuna", "ConsultaFormulario")';
+        var validarRut_Url       = '@Url.Action("ValidarRut", "ConsultaFormulario")';
+        var createHijo_Url       = '@Url.Action("CreateHijo", "ConsultaFormulario")';
+        var editHijo_Url         = '@Url.Action("EditHijo", "ConsultaFormulario")';
+        var deleteHijo_Url       = '@Url.Action("DeleteHijo", "ConsultaFormulario")';
+        var createLicencia_Url   = '@Url.Action("CreateLicencia", "ConsultaFormulario")';
+        var editLicencia_Url     = '@Url.Action("EditLicencia", "ConsultaFormulario")';
+        var deleteLicencia_Url   = '@Url.Action("DeleteLicencia", "ConsultaFormulario")';
+        var createDocumento_Url  = '@Url.Action("CreateDocumento", "ConsultaFormulario")';
+        var editDocumento_Url    = '@Url.Action("EditDocumento", "ConsultaFormulario")';
+        var deleteDocumento_Url  = '@Url.Action("DeleteDocumento", "ConsultaFormulario")';
+        var csrfToken            = $('input[name="__RequestVerificationToken"]').val();
     </script>
-    <script src="~/js/FormularioConsulta.js"></script>
-    <script src="~/js/funcionesBasicas.js"></script>
+    <script src="~/js/FormularioConsulta.js" asp-append-version="true"></script>
+    <script src="~/js/funcionesBasicas.js" asp-append-version="true"></script>
+    <script src="~/js/GrillaModales.js" asp-append-version="true"></script>
 }
-

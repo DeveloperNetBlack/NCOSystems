@@ -1,0 +1,39 @@
+@using NCOSystems.Entity.Parametro
+@using NCOSystems.Entity.Personal
+@model DocumentoEntity
+
+@using (Html.BeginForm("EditDocumento", "ConsultaFormulario", FormMethod.Post,
+    new { id = "formDocumento", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    @* { { --Campos ocultos con todos los datos necesarios --} } *@
+    <input type="hidden" asp-for="IdDocumento" />
+    <input type="hidden" asp-for="IdPersonal" />
+    <input type="hidden" asp-for="IdTipoDocumento" />
+    <input type="hidden" asp-for="RutPersonal" />
+    <input type="hidden" asp-for="NombreTipoDocumento" />
+    <input type="hidden" asp-for="RutaDocumento" />
+    <input type="hidden" asp-for="IdUsuario" />
+    <input type="hidden" asp-for="NombreDocumento" />
+
+    <div class="modal-header">
+        <h5 class="modal-title">Editar Documento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group mb-3">
+            <label asp-for="NombreTipoDocumento">Nombre Documento</label>
+            @* {{-- Solo visual, el valor real viaja en el hidden de arriba --}} *@
+            <input asp-for="NombreTipoDocumento" class="form-control" disabled />
+        </div>
+        <div class="form-group mb-3">
+            <label for="archivo">Seleccione nuevo archivo</label>
+            <input type="file" name="archivo" id="archivo" class="form-control" required />
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+}

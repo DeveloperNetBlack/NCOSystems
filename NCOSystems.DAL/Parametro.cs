@@ -81,11 +81,11 @@ namespace NCOSystems.DAL
             Parameters parameters = new Parameters();
 
             conn.Devolution = TypeRefund.Register.Entity;
-            
+
             parameters.NameProcedure = "SP_SEL_TIPO_LICENCIA";
-            
+
             conn.ExecuteSQL(parameters);
-            
+
             if (conn.ReturnEntity != null)
             {
                 return conn.ReturnEntity.ToList();
@@ -135,6 +135,28 @@ namespace NCOSystems.DAL
             else
             {
                 return new List<EstadoLaboralEntity>();
+            }
+        }
+
+        public List<GeneroEntity> ListarGenero(IConfiguration configuration)
+        {
+            Connection<GeneroEntity> conn = new(configuration);
+
+            Parameters parameters = new Parameters();
+
+            conn.Devolution = TypeRefund.Register.Entity;
+
+            parameters.NameProcedure = "SP_SEL_GENERO";
+
+            conn.ExecuteSQL(parameters);
+
+            if (conn.ReturnEntity != null)
+            {
+                return conn.ReturnEntity.ToList();
+            }
+            else
+            {
+                return new List<GeneroEntity>();
             }
         }
     }

@@ -50,6 +50,8 @@ namespace NCOSystems.Entity.Personal
 
         public string? NombreEstadoLaboral { get; set; } = null;
 
+        public string? FecIngreso { get; set; }
+
         public int IndVigencia { get; set; }
 
         public int Correlativo { get; set; }

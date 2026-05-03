@@ -21,29 +21,7 @@ namespace NCOSystems.BLL
             personal.Actualizar(personalEntity, configuration);
         }
 
-        public void InsertarHijo(List<PersonalHijoEntity> personalHijoEntity, int idPersonal, IConfiguration configuration)
-        {
-            DAL.Personal personal = new DAL.Personal();
 
-            foreach (var item in personalHijoEntity)
-            {
-                item.IdPersonal = idPersonal;
-                item.IdUsuario = "ADMIN";
-                personal.InsertarHijo(item, configuration);
-            }
-        }
-
-        public void InsertarPersonalTipoLicencia(List<PersonalTipoLicenciaEntity> personalTipoLicenciaEntity, int idPersonal,  IConfiguration configuration)
-        {
-            DAL.Personal personal = new DAL.Personal();
-
-            foreach (var item in personalTipoLicenciaEntity)
-            {
-                item.IdPersonal = idPersonal;
-                item.IdUsuario = "ADMIN";
-                personal.InsertarPersonalTipoLicencia(item, configuration);
-            }
-        }
 
         public List<PersonalEntity> ListarPersonal(string rutPersonal, string nombrePersonal, IConfiguration configuration)
         {
@@ -51,15 +29,9 @@ namespace NCOSystems.BLL
             return personal.ListarPersonal(rutPersonal, nombrePersonal, configuration);
         }
 
-        public List<PersonalHijoEntity> ListarPersonalHijo(int idPersonal, IConfiguration configuration)
-        {
-            DAL.Personal personal = new DAL.Personal();
-            return personal.ListarPersonalHijo(idPersonal, configuration);
-        }
-
         public List<PersonalTipoLicenciaEntity> ListarPersonalTipoLicencia(int idPersonal, IConfiguration configuration)
         {
-            DAL.Personal personal = new DAL.Personal();
+            DAL.PersonalTipoLicencia personal = new DAL.PersonalTipoLicencia();
 
             return personal.ListarPersonalTipoLicencia(idPersonal, configuration);
         }

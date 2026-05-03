@@ -7,6 +7,6 @@ namespace NCOSystems.Entity.Parametro
     public class GeneroEntity
     {
         public int IdGenero { get; set; }
-        public string? DescripcionGenero { get; set; } = null;
+        public string? NombreGenero { get; set; }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NCOSystems.Entity.Personal
+﻿namespace NCOSystems.Entity.Personal
 {
     public class PersonalHijoEntity
     {

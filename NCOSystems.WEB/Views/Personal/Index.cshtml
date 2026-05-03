@@ -97,7 +97,7 @@
         <div class="form-group col-md-4">
             <label for="IdGenero">Sexo</label>
             @Html.DropDownListFor(m => m.IdGenero,
-                new SelectList(Model.generoEntities, "IdGenero", "DescripcionGenero"),
+                new SelectList(Model.generoEntities, "IdGenero", "NombreGenero"),
                 "Seleccione Sexo",
                 new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdGenero, "", new { @class = "text-danger" })

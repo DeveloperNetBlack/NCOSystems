@@ -1,0 +1,91 @@
+@using NCOSystems.Entity.Personal
+@model PersonalTipoLicenciaEntity
+<form id="formLicencia" method="post" action="@Url.Action("CreateLicencia", "ConsultaFormulario")">
+    @Html.AntiForgeryToken()
+    
+    <input type="hidden" name="IdPersonalTipoLicencia" value="0" />
+    <input type="hidden" name="IdPersonal" value="@Model.IdPersonal" />
+    <div class="modal-header">
+        <h5 class="modal-title">Crear Licencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group mb-3">
+            <label>Tipo Licencia</label>
+            @Html.DropDownListFor(m => m.IdTipoLicencia,
+                                    new SelectList(Model.tipoLicenciaEntities, "IdTipoLicencia", "NombreTipo"),
+                                    "Seleccione una Licencia",
+                                    new { @class = "form-control" })
+            <span asp-validation-for="NombreClaseLicencia" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label>Fec. Otorgamiento</label>
+            <input name="FecOtorgamiento"
+                   value=""
+                   class="form-control datepicker-otorgamiento"
+                   type="text"
+                   autocomplete="off" />
+            <span asp-validation-for="FecOtorgamiento" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label>Fec. Vencimiento</label>
+            <input name="FecVctoLicencia"
+                   value=""
+                   class="form-control datepicker-vcto"
+                   type="text"
+                   autocomplete="off" />
+            <span asp-validation-for="FecVctoLicencia" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+</form>
+<style>
+    .ui-datepicker {
+        z-index: 9999 !important;
+        position: absolute !important;
+    }
+
+    .modal {
+        overflow: visible !important;
+    }
+
+    .modal-dialog {
+        overflow: visible !important;
+    }
+
+    .modal-body {
+        overflow: visible !important;
+    }
+
+    .modal-content {
+        overflow: visible !important;
+    }
+</style>
+<script>
+    $(function () {
+        var opciones = {
+            changeMonth: true,
+            changeYear: true,
+            beforeShow: function (input, inst) {
+                setTimeout(function () {
+                    var inputOffset = $(input).offset();
+                    var inputHeight = $(input).outerHeight();
+                    $("#ui-datepicker-div").css({
+                        top: inputOffset.top + inputHeight + "px",
+                        left: inputOffset.left + "px"
+                    });
+                }, 0);
+            }
+        };
+        $(".datepicker-otorgamiento").datepicker($.extend({}, opciones, {
+            minDate: "-30Y",
+            yearRange: "-30:+10"
+        }));
+        $(".datepicker-vcto").datepicker($.extend({}, opciones, {
+            minDate: 0
+        }));
+    });
+</script>

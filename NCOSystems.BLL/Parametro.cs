@@ -51,7 +51,9 @@ namespace NCOSystems.BLL
 
         public List<GeneroEntity> ListarGenero(IConfiguration configuration)
         {
-            return new List<GeneroEntity> { new GeneroEntity { IdGenero = 1, DescripcionGenero = "MASCULINO" }, new GeneroEntity { IdGenero = 2, DescripcionGenero = "FEMENINO" } };
+            DAL.Parametro parametro = new DAL.Parametro();
+
+            return parametro.ListarGenero(configuration);
         }
     }
 }

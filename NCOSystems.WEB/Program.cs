@@ -2,30 +2,42 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ✅ Leer el ambiente desde appsettings.json base
+var ambiente = builder.Configuration["Ambiente"] ?? "Development";
+
+// ✅ Cargar el appsettings correspondiente al ambiente
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{ambiente}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// ✅ Aplicar el ambiente al host
+builder.Environment.EnvironmentName = ambiente;
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-app.UseStaticFiles(); // Enables serving static files from wwwroot
+// Carpeta Documento
+var carpetaDocumento = Path.Combine(Directory.GetCurrentDirectory(), "Documento");
+if (!Directory.Exists(carpetaDocumento))
+    Directory.CreateDirectory(carpetaDocumento);
+
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-    Path.Combine(Directory.GetCurrentDirectory(), "Documento")),
+    FileProvider = new PhysicalFileProvider(carpetaDocumento),
     RequestPath = new PathString("/Documento")
 });
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -34,6 +46,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Personal}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
