@@ -416,3 +416,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Configuraciones con credenciales por ambiente
+appsettings.Production.json
+appsettings.QA.json
