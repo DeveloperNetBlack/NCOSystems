@@ -29,6 +29,8 @@ namespace NCOSystems.WEB.Models
 
         public List<GeneroEntity> generoEntities { get; set; } = new();
 
+        public  List<PaisEntity> paisEntities { get; set; } = new();
+
         public string? FechaVctoLicencia { get; set; }
         public string? FecOtorgamiento { get; set; }
         public string? NombreClaseLicencia { get; set; }

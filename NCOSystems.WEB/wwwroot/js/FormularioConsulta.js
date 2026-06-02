@@ -98,7 +98,16 @@
     $("#FecOtorgamiento").datepicker({
         changeMonth: true,
         changeYear: true,
-        minDate: "01/01/1900"
+        minDate: "-30Y",
+        yearRange: "-30:+10"
+    });
+
+    $("#FecNacimiento").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        minDate: "-90Y",
+        yearRange: "-90:+10",
+        dateFormat: "dd/mm/yy"
     });
 
     // ==========================================

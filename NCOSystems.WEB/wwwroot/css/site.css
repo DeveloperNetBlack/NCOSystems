@@ -163,3 +163,46 @@ footer {
         font-size: 13px;
     }
 }
+
+/* Tamaño de letra uniforme en toda la grilla */
+/*.grid-mvc td,
+.grid-mvc th {
+    font-size: 0.875rem;
+    vertical-align: middle;
+}*/
+
+    /* Igualar columna Archivo con columna Nombre */
+    /*.grid-mvc td:last-child,
+    .grid-mvc th:last-child {
+        min-width: 200px;
+        width: 50%;
+        font-size: 0.875rem;
+    }
+
+    .grid-mvc td:nth-child(2),
+    .grid-mvc th:nth-child(2) {
+        min-width: 200px;
+        width: 50%;
+        font-size: 0.875rem;
+    }*/
+
+/* Input con mismo tamaño de letra que la grilla */
+/*.file-documento {
+    width: 100%;
+    min-width: 150px;
+    font-size: 0.875rem;
+}*/
+
+/* Ajustes en móvil */
+/*@media (max-width: 576px) {
+    .grid-mvc td,
+    .grid-mvc th {
+        font-size: 0.8rem;
+        padding: 4px !important;
+    }
+
+    .file-documento {
+        font-size: 0.8rem;
+        min-width: 100px;
+    }
+}*/

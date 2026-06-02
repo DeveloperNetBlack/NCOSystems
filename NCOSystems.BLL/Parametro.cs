@@ -55,5 +55,12 @@ namespace NCOSystems.BLL
 
             return parametro.ListarGenero(configuration);
         }
+
+        public List<PaisEntity> ListarPais(IConfiguration configuration)
+        {
+            DAL.Parametro parametro = new DAL.Parametro();
+
+            return parametro.ListarPais(configuration);
+        }
     }
 }

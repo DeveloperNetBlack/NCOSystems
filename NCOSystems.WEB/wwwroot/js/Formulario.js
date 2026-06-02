@@ -98,6 +98,13 @@
         yearRange: "-30:+10"
     });
 
+    $("#FecNacimiento").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        minDate: "-90Y",
+        yearRange: "-90:+10"
+    });
+
     // ==========================================
     // Tabla Licencias
     // ==========================================
@@ -257,7 +264,10 @@
             IdComuna: document.getElementById("IdComuna")?.value || "",
             IdEstadoCivil: document.getElementById("IdEstadoCivil")?.value || "",
             IdEstadoLaboral: document.getElementById("IdEstadoLaboral")?.value || "",
-            IdGenero: document.getElementById("IdGenero")?.value || ""
+            IdGenero: document.getElementById("IdGenero")?.value || "",
+            IdPais: document.getElementById("IdPais")?.value || "",
+            FecNacimiento: document.getElementById("FecNacimiento")?.value || "",
+            Direccion: document.getElementById("Direccion")?.value || ""
         };
 
         // ==========================================

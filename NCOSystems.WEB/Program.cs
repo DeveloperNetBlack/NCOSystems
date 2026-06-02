@@ -16,6 +16,15 @@ builder.Environment.EnvironmentName = ambiente;
 
 builder.Services.AddControllersWithViews();
 
+// ✅ Sesión en memoria (reemplaza TempData por cookies)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 var app = builder.Build();
 
 // Carpeta Documento
@@ -36,15 +45,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseRouting();
-app.UseAuthorization();
+// ✅ HTTPS comentado para MonsterASP (lo maneja el servidor)
+// app.UseHttpsRedirection();
 
-app.MapStaticAssets();
+app.UseRouting();
+
+// ✅ Sesión debe ir antes de Authorization
+app.UseSession();
+
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Personal}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Personal}/{action=Index}/{id?}");
 
 app.Run();

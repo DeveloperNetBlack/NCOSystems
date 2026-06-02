@@ -159,5 +159,27 @@ namespace NCOSystems.DAL
                 return new List<GeneroEntity>();
             }
         }
+
+        public List<PaisEntity> ListarPais(IConfiguration configuration)
+        {
+            Connection<PaisEntity> conn = new(configuration);
+
+            Parameters parameters = new Parameters();
+
+            conn.Devolution = TypeRefund.Register.Entity;
+
+            parameters.NameProcedure = "SP_SEL_PAIS";
+
+            conn.ExecuteSQL(parameters);
+
+            if (conn.ReturnEntity != null)
+            {
+                return conn.ReturnEntity.ToList();
+            }
+            else
+            {
+                return new List<PaisEntity>();
+            }
+        }
     }
 }

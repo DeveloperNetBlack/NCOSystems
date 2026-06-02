@@ -65,7 +65,10 @@ namespace NCOSystems.WEB.Controllers
                         IdEstadoLaboral = item.IdEstadoLaboral,
                         IdGenero = item.IdGenero,
                         IdPersonal = item.IdPersonal,
-                        Correlativo = item.Correlativo
+                        Correlativo = item.Correlativo,
+                        IdPais = item.IdPais,
+                        FecNacimiento = item.FecNacimiento,
+                        Direccion = item.Direccion,
                     });
                 }
             }
@@ -94,6 +97,7 @@ namespace NCOSystems.WEB.Controllers
             personalViewModel.estadoCivilEntities = parametro.ListarEstadoCivil(_configuration);
             personalViewModel.estadoLaboralEntities = parametro.ListarEstadoLaboral(_configuration);
             personalViewModel.generoEntities = parametro.ListarGenero(_configuration);
+            personalViewModel.paisEntities = parametro.ListarPais(_configuration);
 
             try
             {
@@ -127,6 +131,9 @@ namespace NCOSystems.WEB.Controllers
                     personalViewModel.IdEstadoCivil = item.IdEstadoCivil;
                     personalViewModel.IdEstadoLaboral = item.IdEstadoLaboral;
                     personalViewModel.IdGenero = item.IdGenero;
+                    personalViewModel.FecNacimiento = item.FecNacimiento;
+                    personalViewModel.Direccion = item.Direccion;
+                    personalViewModel.IdPais = item.IdPais;
                 }
             }
             catch (Exception ex)
@@ -135,6 +142,44 @@ namespace NCOSystems.WEB.Controllers
             }
 
             return PartialView("_FormularioIngreso", personalViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult EditFormulario(PersonalViewModel personalViewModel)
+        {
+            BLL.Personal personal = new BLL.Personal();
+
+            try
+            {
+                PersonalEntity personalEntity = new PersonalEntity
+                {
+                    IdPersonal = personalViewModel.IdPersonal,
+                    RutPersonal = personalViewModel.RutPersonal,
+                    NombrePersonal = personalViewModel.NombrePersonal,
+                    ApPaternoPersonal = personalViewModel.ApPaternoPersonal,
+                    ApMaternoPersonal = personalViewModel.ApMaternoPersonal,
+                    CorreoElectronico = personalViewModel.CorreoElectronico,
+                    TelefonoPersonal = personalViewModel.TelefonoPersonal,
+                    IdRegion = personalViewModel.IdRegion,
+                    IdComuna = personalViewModel.IdComuna,
+                    IdEstadoCivil = personalViewModel.IdEstadoCivil,
+                    IdEstadoLaboral = personalViewModel.IdEstadoLaboral,
+                    IdGenero = personalViewModel.IdGenero,
+                    IdPais = personalViewModel.IdPais,
+                    FecNacimiento = personalViewModel.FecNacimiento,
+                    Direccion = personalViewModel.Direccion!.ToUpper(),
+                    IdUsuario = "ADMIN"
+                };
+
+                personal.Actualizar(personalEntity, _configuration);
+            }
+            catch (Exception ex)
+            {
+                return PartialView("Mensajeria", new MensajeriaViewModel { IsError = true, Mensaje = ex.Message, Url = "/ConsultaFormulario" });
+            }
+
+            return PartialView("Mensajeria", new MensajeriaViewModel { IsError = false, Mensaje = "Se actualizo registro correctamente", Url = "/ConsultaFormulario" });
+
         }
 
         // ============================================================
@@ -214,41 +259,6 @@ namespace NCOSystems.WEB.Controllers
             return File(stream.ToArray(),
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         fileName);
-        }
-
-        [HttpPost]
-        public IActionResult EditFormulario(PersonalViewModel personalViewModel)
-        {
-            BLL.Personal personal = new BLL.Personal();
-
-            try
-            {
-                PersonalEntity personalEntity = new PersonalEntity
-                {
-                    IdPersonal = personalViewModel.IdPersonal,
-                    RutPersonal = personalViewModel.RutPersonal,
-                    NombrePersonal = personalViewModel.NombrePersonal,
-                    ApPaternoPersonal = personalViewModel.ApPaternoPersonal,
-                    ApMaternoPersonal = personalViewModel.ApMaternoPersonal,
-                    CorreoElectronico = personalViewModel.CorreoElectronico,
-                    TelefonoPersonal = personalViewModel.TelefonoPersonal,
-                    IdRegion = personalViewModel.IdRegion,
-                    IdComuna = personalViewModel.IdComuna,
-                    IdEstadoCivil = personalViewModel.IdEstadoCivil,
-                    IdEstadoLaboral = personalViewModel.IdEstadoLaboral,
-                    IdGenero = personalViewModel.IdGenero,
-                    IdUsuario = "ADMIN"
-                };
-
-                personal.Actualizar(personalEntity, _configuration);
-            }
-            catch (Exception ex)
-            {
-                return PartialView("Mensajeria", new MensajeriaViewModel { IsError = true, Mensaje = ex.Message, Url = "/ConsultaFormulario" });
-            }
-
-            return PartialView("Mensajeria", new MensajeriaViewModel { IsError = false, Mensaje = "Se actualizo registro correctamente", Url = "/ConsultaFormulario" });
-
         }
 
         // ############################################################

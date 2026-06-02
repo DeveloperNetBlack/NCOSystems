@@ -20,30 +20,33 @@ namespace NCOSystems.WEB.Controllers
 
         public IActionResult Index()
         {
-            // Obtener modelo de la memoria
-            PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
-            BLL.Parametro parametro = new BLL.Parametro();
-
-            // Chequea si el modelo existe
-            if (model == null)
+            try
             {
-                model = new PersonalViewModel();
+                PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
+                BLL.Parametro parametro = new BLL.Parametro();
+
+                if (model == null)
+                    model = new PersonalViewModel();
+
+                model.regionEntities = parametro.ListarRegion(_configuration);
+                model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
+                model.tipoDocumentoEntities = parametro.ListarTipoDocumento(_configuration);
+                model.estadoCivilEntities = parametro.ListarEstadoCivil(_configuration);
+                model.estadoLaboralEntities = parametro.ListarEstadoLaboral(_configuration);
+                model.generoEntities = parametro.ListarGenero(_configuration);
+                model.paisEntities = parametro.ListarPais(_configuration);
+
+                model.personalTipoLicenciaEntities = new List<PersonalTipoLicenciaEntity>();
+                model.IdPais = 40;
+
+                ViewBag.ListaComuna = new List<SelectListItem>();
+
+                return View(model);
             }
-
-            model.regionEntities = parametro.ListarRegion(_configuration);
-            model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
-            model.tipoDocumentoEntities = parametro.ListarTipoDocumento(_configuration);
-            model.estadoCivilEntities = parametro.ListarEstadoCivil(_configuration);
-            model.estadoLaboralEntities = parametro.ListarEstadoLaboral(_configuration);
-            model.generoEntities = parametro.ListarGenero(_configuration);
-
-            model.personalTipoLicenciaEntities = new List<PersonalTipoLicenciaEntity>();
-
-            ViewBag.ListaComuna = new List<SelectListItem>();
-
-            TempData.Put("PersonalData", model);
-
-            return View(model);
+            catch (Exception ex)
+            {
+                return Content("ERROR: " + ex.Message + " | " + ex.InnerException?.Message);
+            }
         }
 
         [HttpGet]
@@ -63,8 +66,6 @@ namespace NCOSystems.WEB.Controllers
             PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
 
             model.personalTipoLicenciaEntities.RemoveAll(x => x.IdPersonalTipoLicencia == Convert.ToInt32(idPersonalTipoLicencia));
-
-            TempData.Put("PersonalData", model);
 
             return Json(model);
         }
@@ -190,6 +191,9 @@ namespace NCOSystems.WEB.Controllers
             personalEntity.IdEstadoCivil = persona.IdEstadoCivil;
             personalEntity.IdEstadoLaboral = persona.IdEstadoLaboral;
             personalEntity.IdGenero = persona.IdGenero;
+            personalEntity.IdPais = persona.IdPais;
+            personalEntity.FecNacimiento = persona.FecNacimiento;
+            personalEntity.Direccion = persona.Direccion!.ToUpper();
             personalEntity.IndVigencia = 1;
             personalEntity.IdUsuario = "ADMIN";
 

@@ -21,6 +21,9 @@ namespace NCOSystems.Entity.Personal
         [Required(ErrorMessage = "Debe seleccionar un Estado Laboral")]    
         public int IdEstadoLaboral { get; set; }
 
+        [Required(ErrorMessage = "Debe seleccionar un País")]
+        public int IdPais { get; set; }
+
         [Required(ErrorMessage = "El RUT es obligatorio")]
         public string? RutPersonal { get; set; }
 
@@ -34,6 +37,12 @@ namespace NCOSystems.Entity.Personal
 
         public string? NombreCompletoPersonal { get { return $"{NombrePersonal} {ApPaternoPersonal} {ApMaternoPersonal}"; } }
 
+        [Required(ErrorMessage = "La Fecha de Nacimiento es obligatorio")]
+        public DateTime? FecNacimiento { get; set; }
+
+        [Required(ErrorMessage = "La Dirección es obligatoria")]
+        public string? Direccion { get; set; }
+
         [Required(ErrorMessage = "El Teléfono es obligatorio")]
         public string? TelefonoPersonal { get; set; }
 
@@ -43,6 +52,8 @@ namespace NCOSystems.Entity.Personal
         public string? NombreComuna { get; set; }
 
         public string? NombreRegion { get; set; }
+
+        public string? NombrePais { get; set; }
 
         public string? NombreEstadoCivil { get; set; } = null;
 
