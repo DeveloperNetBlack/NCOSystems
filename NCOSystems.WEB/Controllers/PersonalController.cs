@@ -100,6 +100,9 @@ namespace NCOSystems.WEB.Controllers
                     cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
                     cliente.Config.ValidateAnyCertificate = false; // Cambiar a false en producción con certificado válido
 
+                    //cliente.Config.EncryptionMode = FtpEncryptionMode.None;
+                    //cliente.Config.ValidateAnyCertificate = true; // Cambiar a false en producción con certificado válido
+
                     await cliente.Connect();
 
                     foreach (var doc in documentos)

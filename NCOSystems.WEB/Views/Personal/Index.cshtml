@@ -221,7 +221,7 @@
                             $"data-nombre='{o.NombreTipoDocumento}' " +
                             $"{(o.NombreTipoDocumento!.Trim().ToUpper() == "REGISTRO SOCIAL DE HOGAR" ? "data-excluir='true'" : "")} />" +
                             $"</div>");
-                }).WithPaging(20).EmptyText("No se encontraron registros").RenderAsync()
+                }).EmptyText("No se encontraron registros").RenderAsync()
             </div>
         </div>
     </div>

@@ -26,7 +26,7 @@ namespace NCOSystems.DAL
             parameters.addParameters("@PI_NOMBRE_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.NombrePersonal!);
             parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApPaternoPersonal!);
             parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApMaternoPersonal!);
-            parameters.addParameters("@PI_FEC_NACIMIENTO", TypeData.DataType.DateTime, 0, ParameterDirection.Input, personalEntity.FecNacimiento!);
+            parameters.addParameters("@PI_FEC_NACIMIENTO", TypeData.DataType.DateTime, 0, ParameterDirection.Input, personalEntity.FechaNacimiento!);
             parameters.addParameters("@PI_DIRECCION", TypeData.DataType.Varchar, 100, ParameterDirection.Input, personalEntity.Direccion!);
             parameters.addParameters("@PI_TELEFONO_PERSONAL", TypeData.DataType.Varchar, 50, ParameterDirection.Input, personalEntity.TelefonoPersonal!);
             parameters.addParameters("@PI_CORREO_ELECTRONICO", TypeData.DataType.Varchar, 90, ParameterDirection.Input, personalEntity.CorreoElectronico!);
@@ -63,7 +63,7 @@ namespace NCOSystems.DAL
             parameters.addParameters("@PI_NOMBRE_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.NombrePersonal!);
             parameters.addParameters("@PI_AP_PATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApPaternoPersonal!);
             parameters.addParameters("@PI_AP_MATERNO_PERSONAL", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalEntity.ApMaternoPersonal!);
-            parameters.addParameters("@PI_FEC_NACIMIENTO", TypeData.DataType.DateTime, 0, ParameterDirection.Input, personalEntity.FecNacimiento!);
+            parameters.addParameters("@PI_FEC_NACIMIENTO", TypeData.DataType.DateTime, 0, ParameterDirection.Input, personalEntity.FechaNacimiento!);
             parameters.addParameters("@PI_DIRECCION", TypeData.DataType.Varchar, 100, ParameterDirection.Input, personalEntity.Direccion!);
             parameters.addParameters("@PI_TELEFONO_PERSONAL", TypeData.DataType.Varchar, 50, ParameterDirection.Input, personalEntity.TelefonoPersonal!);
             parameters.addParameters("@PI_CORREO_ELECTRONICO", TypeData.DataType.Varchar, 90, ParameterDirection.Input, personalEntity.CorreoElectronico!);

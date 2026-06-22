@@ -355,8 +355,18 @@
         formData.append("datoPersonalHijo", JSON.stringify(datoPersonalHijo));
 
         btn.disabled = true;
-        document.getElementById("resultadoMensaje").innerHTML =
-            '<span class="text-info">Guardando datos...</span>';
+
+        // Popup de espera
+        Swal.fire({
+            title: 'Guardando datos...',
+            text: 'Por favor espera un momento.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         try {
             const response = await fetch("/Personal/Create", {
@@ -365,6 +375,9 @@
             });
 
             const data = await response.json();
+
+            Swal.close(); // cierra el popup de "Guardando datos..."
+
             Swal.fire({
                 icon: data.isError ? 'error' : 'success',
                 title: data.mensaje,
@@ -378,6 +391,7 @@
 
         } catch (err) {
             console.log(err);
+            Swal.close(); // cierra el popup de "Guardando datos..."
             Swal.fire({
                 icon: 'error',
                 title: err,

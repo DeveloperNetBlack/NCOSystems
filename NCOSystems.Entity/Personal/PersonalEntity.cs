@@ -18,7 +18,7 @@ namespace NCOSystems.Entity.Personal
         [Required(ErrorMessage = "Debe seleccionar Sexo")]
         public int IdGenero { get; set; }
 
-        [Required(ErrorMessage = "Debe seleccionar un Estado Laboral")]    
+        [Required(ErrorMessage = "Debe seleccionar un Estado Laboral")]
         public int IdEstadoLaboral { get; set; }
 
         [Required(ErrorMessage = "Debe seleccionar un País")]
@@ -38,7 +38,7 @@ namespace NCOSystems.Entity.Personal
         public string? NombreCompletoPersonal { get { return $"{NombrePersonal} {ApPaternoPersonal} {ApMaternoPersonal}"; } }
 
         [Required(ErrorMessage = "La Fecha de Nacimiento es obligatorio")]
-        public DateTime? FecNacimiento { get; set; }
+        public string? FecNacimiento { get; set; }
 
         [Required(ErrorMessage = "La Dirección es obligatoria")]
         public string? Direccion { get; set; }
@@ -66,6 +66,12 @@ namespace NCOSystems.Entity.Personal
         public int IndVigencia { get; set; }
 
         public int Correlativo { get; set; }
+
+        public DateTime? FechaNacimiento => string.IsNullOrEmpty(FecNacimiento)
+                                                            ? null
+                                                            : Convert.ToDateTime(FecNacimiento.Substring(6, 4) + "-" +
+                                                                                 FecNacimiento.Substring(3, 2) + "-" +
+                                                                                 FecNacimiento.Substring(0, 2));
 
         public string? IdUsuario { get; set; }
 

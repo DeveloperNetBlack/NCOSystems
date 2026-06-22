@@ -69,6 +69,7 @@ namespace NCOSystems.WEB.Controllers
                         IdPais = item.IdPais,
                         FecNacimiento = item.FecNacimiento,
                         Direccion = item.Direccion,
+                        FecIngreso = item.FecIngreso
                     });
                 }
             }
@@ -154,7 +155,7 @@ namespace NCOSystems.WEB.Controllers
                 PersonalEntity personalEntity = new PersonalEntity
                 {
                     IdPersonal = personalViewModel.IdPersonal,
-                    RutPersonal = personalViewModel.RutPersonal,
+                    RutPersonal = personalViewModel.RutPersonal!.Replace(".",""),
                     NombrePersonal = personalViewModel.NombrePersonal,
                     ApPaternoPersonal = personalViewModel.ApPaternoPersonal,
                     ApMaternoPersonal = personalViewModel.ApMaternoPersonal,
@@ -524,9 +525,9 @@ namespace NCOSystems.WEB.Controllers
                     _configuration["FTP:Password"]))
                 {
                     //Configuración FTPS(FTP Seguro)
-                    //cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
-                    cliente.Config.EncryptionMode = FtpEncryptionMode.None;
-                    cliente.Config.ValidateAnyCertificate = true; // Cambiar a false en producción con certificado válido
+                    cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
+                    //cliente.Config.EncryptionMode = FtpEncryptionMode.None;
+                    cliente.Config.ValidateAnyCertificate = false; // Cambiar a false en producción con certificado válido
 
                     await cliente.Connect();
 
