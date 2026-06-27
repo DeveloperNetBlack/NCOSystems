@@ -16,6 +16,8 @@ builder.Environment.EnvironmentName = ambiente;
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddHttpContextAccessor();
+
 // ✅ Sesión en memoria (reemplaza TempData por cookies)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

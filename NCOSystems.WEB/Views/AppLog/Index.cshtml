@@ -1,0 +1,342 @@
+﻿@model List<NCOSystems.Entity.Log.AppLogEntity>
+@using NCOSystems.Entity.Log
+
+@{
+    ViewData["Title"] = "Registro de Logs";
+    LogFiltroEntity filtro = ViewBag.Filtro ?? new LogFiltroEntity();
+}
+
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0"><i class="bi bi-journal-text"></i> Registro de Logs del Sistema</h4>
+        <button class="btn btn-outline-danger btn-sm" onclick="abrirPurga()">
+            <i class="bi bi-trash"></i> Purgar Logs
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-2 align-items-end">
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Nivel</label>
+                        <select name="Level" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            <option value="Information" selected="@(filtro.Level == "Information")">Information</option>
+                            <option value="Warning" selected="@(filtro.Level == "Warning")">Warning</option>
+                            <option value="Error" selected="@(filtro.Level == "Error")">Error</option>
+                            <option value="Critical" selected="@(filtro.Level == "Critical")">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Categoría</label>
+                        <input type="text" name="Category" value="@filtro.Category"
+                               class="form-control form-control-sm" placeholder="Ej: FTP, Grabar..." />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Evento</label>
+                        <input type="text" name="EventType" value="@filtro.EventType"
+                               class="form-control form-control-sm" placeholder="Ej: INSERT_PERSONAL..." />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Fecha Desde</label>
+                        <input type="date" name="FechaDesde"
+                               value="@filtro.FechaDesde?.ToString("yyyy-MM-dd")"
+                               class="form-control form-control-sm" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Fecha Hasta</label>
+                        <input type="date" name="FechaHasta"
+                               value="@filtro.FechaHasta?.ToString("yyyy-MM-dd")"
+                               class="form-control form-control-sm" />
+                    </div>
+
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                        <a href="/AppLog" class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="bi bi-x-circle"></i> Limpiar
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row mb-3 g-2">
+        <div class="col-md-3">
+            <div class="card border-0 bg-light text-center py-2">
+                <div class="fw-bold fs-5">@Model.Count</div>
+                <small class="text-muted">Total registros</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-danger bg-opacity-10 text-center py-2">
+                <div class="fw-bold fs-5 text-danger">@Model.Count(x => x.Level == "Error" || x.Level == "Critical")</div>
+                <small class="text-muted">Errores</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-warning bg-opacity-10 text-center py-2">
+                <div class="fw-bold fs-5 text-warning">@Model.Count(x => x.Level == "Warning")</div>
+                <small class="text-muted">Advertencias</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-success bg-opacity-10 text-center py-2">
+                <div class="fw-bold fs-5 text-success">@Model.Count(x => x.Level == "Information")</div>
+                <small class="text-muted">Informativos</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 small">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Nivel</th>
+                            <th>Categoría</th>
+                            <th>Evento</th>
+                            <th>Mensaje</th>
+                            <th>Usuario</th>
+                            <th>IP</th>
+                            <th>Duración</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    No se encontraron registros
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@log.CreatedAt.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>
+                                    @{
+                                        var badge = log.Level switch
+                                        {
+                                            "Error" => "danger",
+                                            "Critical" => "dark",
+                                            "Warning" => "warning",
+                                            "Information" => "success",
+                                            _ => "secondary"
+                                        };
+                                    }
+                                    <span class="badge bg-@badge">@log.Level</span>
+                                </td>
+                                <td>@log.Category</td>
+                                <td><code class="small">@log.EventType</code></td>
+                                <td class="text-truncate" style="max-width:250px" title="@log.Message">
+                                    @log.Message
+                                </td>
+                                <td>@log.UserName</td>
+                                <td>@log.IpAddress</td>
+                                <td class="text-end">
+                                    @(log.DurationMs.HasValue ? $"{log.DurationMs} ms" : "-")
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-secondary btn-sm py-0"
+                                            onclick="verDetalle(@log.Id)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<div class="modal fade" id="modalDetalle" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalDetalleBody">
+                <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm"></div> Cargando...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Purga -->
+<div class="modal fade" id="modalPurga" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-trash"></i> Purgar Logs</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Se eliminarán todos los registros anteriores a la cantidad de días indicada.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Días a retener</label>
+                    <select id="diasRetener" class="form-select">
+                        <option value="30">Últimos 30 días</option>
+                        <option value="60">Últimos 60 días</option>
+                        <option value="90" selected>Últimos 90 días</option>
+                        <option value="180">Últimos 180 días</option>
+                    </select>
+                </div>
+                <div id="purgaResultado"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmarPurga()">
+                    <i class="bi bi-trash"></i> Confirmar Purga
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Token para peticiones POST -->
+    @Html.AntiForgeryToken()
+
+    <script>
+        // ========== DETALLE ==========
+        function verDetalle(id) {
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            const body  = document.getElementById('modalDetalleBody');
+
+            body.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> Cargando...</div>';
+            modal.show();
+
+            fetch(`/AppLog/Detalle?id=${id}`)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.isError) {
+                        body.innerHTML = `<div class="alert alert-danger">${res.mensaje}</div>`;
+                        return;
+                    }
+
+                    const d = res.data;
+                    const badgeMap = { Error: 'danger', Critical: 'dark', Warning: 'warning', Information: 'success' };
+                    const badge    = badgeMap[d.level] ?? 'secondary';
+
+                    body.innerHTML = `
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted small">Fecha</label>
+                                <div>${new Date(d.createdAt).toLocaleString('es-CL')}</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Nivel</label>
+                                <div><span class="badge bg-${badge}">${d.level}</span></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Duración</label>
+                                <div>${d.durationMs != null ? d.durationMs + ' ms' : '-'}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small">Categoría</label>
+                                <div>${d.category ?? '-'}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small">Evento</label>
+                                <div><code>${d.eventType ?? '-'}</code></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted small">Mensaje</label>
+                                <div class="border rounded p-2 bg-light">${d.message}</div>
+                            </div>
+                            ${d.exception ? `
+                            <div class="col-12">
+                                <label class="text-muted small">Excepción</label>
+                                <div class="border rounded p-2 bg-danger bg-opacity-10 text-danger">${d.exception}</div>
+                            </div>` : ''}
+                            ${d.stackTrace ? `
+                            <div class="col-12">
+                                <label class="text-muted small">Stack Trace</label>
+                                <pre class="border rounded p-2 bg-light small" style="max-height:200px;overflow:auto">${d.stackTrace}</pre>
+                            </div>` : ''}
+                            ${d.payload ? `
+                            <div class="col-12">
+                                <label class="text-muted small">Payload</label>
+                                <pre class="border rounded p-2 bg-light small">${JSON.stringify(JSON.parse(d.payload), null, 2)}</pre>
+                            </div>` : ''}
+                            <div class="col-md-4">
+                                <label class="text-muted small">Usuario</label>
+                                <div>${d.userName ?? '-'}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-muted small">IP</label>
+                                <div>${d.ipAddress ?? '-'}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-muted small">Request Path</label>
+                                <div>${d.requestPath ?? '-'}</div>
+                            </div>
+                        </div>`;
+                })
+                .catch(() => {
+                    body.innerHTML = '<div class="alert alert-danger">Error al cargar el detalle.</div>';
+                });
+        }
+
+        // ========== PURGA ==========
+        function abrirPurga() {
+            document.getElementById('purgaResultado').innerHTML = '';
+            new bootstrap.Modal(document.getElementById('modalPurga')).show();
+        }
+
+        function confirmarPurga() {
+            const dias      = document.getElementById('diasRetener').value;
+            const resultado = document.getElementById('purgaResultado');
+            const token     = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+            resultado.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm"></div> Procesando...</div>';
+
+            fetch('/AppLog/Purgar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `diasRetener=${dias}`
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.isError) {
+                    resultado.innerHTML = `<div class="alert alert-danger">${res.mensaje}</div>`;
+                } else {
+                    resultado.innerHTML = `<div class="alert alert-success">${res.mensaje}</div>`;
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('modalPurga')).hide();
+                        location.reload();
+                    }, 2000);
+                }
+            })
+            .catch(() => {
+                resultado.innerHTML = '<div class="alert alert-danger">Error al ejecutar la purga.</div>';
+            });
+        }
+    </script>
+}

@@ -6,14 +6,12 @@
 <div class="row" style="margin-top: 2rem; margin-bottom: 3rem;">
     <div style="font-size: 2.5rem; font-weight: 750; color: var(--text-title-color);
         display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-
         <a asp-controller="Personal" asp-action="Index" style="flex-shrink: 0;">
             <img src="img/logoNCO.png" alt="" style="width: 9rem;" />
         </a>
         <span class="name" style="flex: 1; text-align: center; min-width: 200px;">
             Formulario de Ingreso
         </span>
-        <!-- Espaciador invisible para centrar el título correctamente en pantallas grandes -->
         <div style="width: 9rem; flex-shrink: 0;"></div>
     </div>
 </div>
@@ -22,12 +20,12 @@
 {
     <div class="row">
         <div class="form-group col-md-2">
-            <label for="rutUsuario">Rut</label>
+            <label>Rut</label>
             @Html.TextBoxFor(m => m.RutPersonal, new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.RutPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
-            <label for="idUsuario">Nombre</label>
+            <label>Nombre</label>
             @Html.TextBoxFor(m => m.NombrePersonal, new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.NombrePersonal, "", new { @class = "text-danger" })
         </div>
@@ -35,24 +33,24 @@
     <br />
     <div class="row">
         <div class="form-group col-md-6">
-            <label for="nombrePersona">Ap. Paterno</label>
+            <label>Ap. Paterno</label>
             @Html.TextBoxFor(m => m.ApPaternoPersonal, new { @class = "form-control", required = "required" })
             @Html.ValidationMessageFor(m => m.ApPaternoPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
-            <label for="apellidoPaterno">Ap. Materno</label>
+            <label>Ap. Materno</label>
             @Html.TextBoxFor(m => m.ApMaternoPersonal, new { @class = "form-control", required = "required" })
         </div>
     </div>
     <br />
     <div class="row">
         <div class="form-group col-md-2">
-            <label for="fecNacimiento">Fecha de Nacimiento</label>
+            <label>Fecha de Nacimiento</label>
             @Html.TextBoxFor(m => m.FecNacimiento, new { @class = "form-control", required = "required" })
             @Html.ValidationMessageFor(m => m.FecNacimiento, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-10">
-            <label for="Direccion">Dirección</label>
+            <label>Dirección</label>
             @Html.TextBoxFor(m => m.Direccion, new { @class = "form-control", required = "required" })
             @Html.ValidationMessageFor(m => m.Direccion, "", new { @class = "text-danger" })
         </div>
@@ -60,39 +58,36 @@
     <br />
     <div class="row">
         <div class="form-group col-md-4">
-            <label for="IdRegion">Región</label>
+            <label>Región</label>
             @Html.DropDownListFor(m => m.IdRegion,
                 new SelectList(Model.regionEntities, "IdRegion", "NombreRegion"),
-                "Seleccione una Región",
-                new { @class = "form-control" })
+                "Seleccione una Región", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdRegion, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-4">
-            <label for="IdComuna">Comuna</label>
+            <label>Comuna</label>
             @Html.DropDownListFor(m => m.IdComuna,
                 ViewBag.ListaComuna as List<SelectListItem>,
-                "Seleccione una Comuna",
-                new { @class = "form-control" })
+                "Seleccione una Comuna", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdComuna, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-4">
-            <label for="IdPais">País</label>
+            <label>País</label>
             @Html.DropDownListFor(m => m.IdPais,
                 new SelectList(Model.paisEntities, "IdPais", "NombrePais"),
-                "Seleccione un País",
-                new { @class = "form-control" })
+                "Seleccione un País", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdPais, "", new { @class = "text-danger" })
         </div>
     </div>
     <br />
     <div class="row">
         <div class="form-group col-md-6">
-            <label for="apellidoMaterno">Teléfono</label>
+            <label>Teléfono</label>
             @Html.TextBoxFor(m => m.TelefonoPersonal, new { @class = "form-control", required = "required" })
             @Html.ValidationMessageFor(m => m.TelefonoPersonal, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-6">
-            <label for="correoElectronico">E-Mail</label>
+            <label>E-Mail</label>
             @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control", required = "required" })
             @Html.ValidationMessageFor(m => m.CorreoElectronico, "", new { @class = "text-danger" })
         </div>
@@ -100,102 +95,78 @@
     <br />
     <div class="row">
         <div class="form-group col-md-4">
-            <label for="IdEstadoCivil">Estado Civil</label>
+            <label>Estado Civil</label>
             @Html.DropDownListFor(m => m.IdEstadoCivil,
                 new SelectList(Model.estadoCivilEntities, "IdEstadoCivil", "NombreEstadoCivil"),
-                "Seleccione un Estado Civil",
-                new { @class = "form-control" })
+                "Seleccione un Estado Civil", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdEstadoCivil, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-4">
-            <label for="IdEstadoLaboral">Estado Laboral</label>
+            <label>Estado Laboral</label>
             @Html.DropDownListFor(m => m.IdEstadoLaboral,
                 new SelectList(Model.estadoLaboralEntities, "IdEstadoLaboral", "NombreEstadoLaboral"),
-                "Seleccione un Estado Laboral",
-                new { @class = "form-control" })
+                "Seleccione un Estado Laboral", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdEstadoLaboral, "", new { @class = "text-danger" })
         </div>
         <div class="form-group col-md-4">
-            <label for="IdGenero">Sexo</label>
+            <label>Sexo</label>
             @Html.DropDownListFor(m => m.IdGenero,
                 new SelectList(Model.generoEntities, "IdGenero", "NombreGenero"),
-                "Seleccione Sexo",
-                new { @class = "form-control" })
+                "Seleccione Sexo", new { @class = "form-control" })
             @Html.ValidationMessageFor(m => m.IdGenero, "", new { @class = "text-danger" })
         </div>
     </div>
     <br />
     <div class="row">
         <h4>Edad e Hijos</h4>
-
         <div class="row">
             <div class="form-group col-md-2">
-                <label for="nombreHijo">Nombre Hijo</label>
+                <label>Nombre Hijo</label>
                 @Html.TextBoxFor(m => m.NombreHijo, new { @class = "form-control" })
             </div>
             <div class="form-group col-md-3">
-                <label for="edadHijo">Edad</label>
+                <label>Edad</label>
                 @Html.TextBoxFor(m => m.EdadHijo, new { @class = "form-control" })
             </div>
             <div class="form-group col-md-3 d-flex align-items-end">
-                <button type="button" id="btnAgregarHijo" class="btn btn-primary">
-                    Agregar
-                </button>
+                <button type="button" id="btnAgregarHijo" class="btn btn-primary">Agregar</button>
             </div>
         </div>
-
-        <!-- Grilla -->
         <table id="tablaHijo" class="table table-bordered table-striped">
             <thead class="table-dark">
-                <tr>
-                    <th>Nombre Hijo</th>
-                    <th>Edad</th>
-                    <th>Acción</th>
-                </tr>
+                <tr><th>Nombre Hijo</th><th>Edad</th><th>Acción</th></tr>
             </thead>
-            <tbody>
-                <!-- Las filas se agregan aquí dinámicamente -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     <br />
     <br />
     <div class="row">
         <h4>Tipos de Licencias</h4>
-
         <div class="row">
             <div class="form-group col-md-2">
-                <label for="fecOtorgamiento">Fecha Otorgamiento</label>
+                <label>Fecha Otorgamiento</label>
                 @Html.TextBoxFor(m => m.FecOtorgamiento, new { @class = "form-control" })
             </div>
             <div class="form-group col-md-2">
-                <label for="fecVctoLicencia">Fecha Vcto. Licencia</label>
+                <label>Fecha Vcto. Licencia</label>
                 @Html.TextBoxFor(m => m.FechaVctoLicencia, new { @class = "form-control" })
             </div>
             <div class="form-group col-md-3">
-                <label for="fecLicencia">Clase Licencia Conducir</label>
-                @Html.DropDownList("ddlTipoLicencia", new SelectList(Model.tipoLicenciaEntities, "IdTipoLicencia", "NombreTipo"), "Seleccione una Licencia", new { @class = "form-control" })
+                <label>Clase Licencia Conducir</label>
+                @Html.DropDownList("ddlTipoLicencia",
+                    new SelectList(Model.tipoLicenciaEntities, "IdTipoLicencia", "NombreTipo"),
+                    "Seleccione una Licencia", new { @class = "form-control" })
             </div>
             <div class="form-group col-md-3 d-flex align-items-end">
-                <button type="button" id="btnAgregar" class="btn btn-primary">
-                    Agregar
-                </button>
+                <button type="button" id="btnAgregar" class="btn btn-primary">Agregar</button>
             </div>
         </div>
-
-        <!-- Grilla -->
         <table id="tablaLicencias" class="table table-bordered table-striped">
             <thead class="table-dark">
-                <tr>
-                    <th>Fecha Otorgamiento</th>
-                    <th>Fecha Vencimiento</th>
-                    <th>Tipo de Licencia</th>
-                    <th>Acción</th>
-                </tr>
+                <tr><th>Fecha Otorgamiento</th><th>Fecha Vencimiento</th><th>Tipo de Licencia</th><th>Acción</th></tr>
             </thead>
-            <tbody>
-                <!-- Las filas se agregan aquí dinámicamente -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     <br />
@@ -207,39 +178,39 @@
                 @await Html.Grid(Model.tipoDocumentoEntities).Named("gridTipoDocumento").Columns(c =>
                 {
                     c.Add(model => model.IdTipoDocumento, true);
-                    c.Add(model => model.NombreTipoDocumento)
-                        .Titled("Nombre")
-                        .SetWidth(50);
-                    c.Add()
-                        .Encoded(false)
-                        .Sanitized(false)
-                        .SetWidth(50)
-                        .Titled("Archivo")
+                    c.Add(model => model.NombreTipoDocumento).Titled("Nombre").SetWidth(50);
+                    c.Add().Encoded(false).Sanitized(false).SetWidth(50).Titled("Archivo")
                         .RenderValueAs(o => $"<div class='w-100'>" +
                             $"<input type='file' class='form-control form-control-sm file-documento' " +
-                            $"data-id='{o.IdTipoDocumento}' " +
-                            $"data-nombre='{o.NombreTipoDocumento}' " +
-                            $"{(o.NombreTipoDocumento!.Trim().ToUpper() == "REGISTRO SOCIAL DE HOGAR" ? "data-excluir='true'" : "")} />" +
-                            $"</div>");
+                            $"data-id='{o.IdTipoDocumento}' data-nombre='{o.NombreTipoDocumento}' " +
+                            $"{(o.NombreTipoDocumento!.Trim().ToUpper() == "REGISTRO SOCIAL DE HOGAR" ? "data-excluir='true'" : "")} /></div>");
                 }).EmptyText("No se encontraron registros").RenderAsync()
             </div>
         </div>
     </div>
 
-    <!-- Contenedor de hidden inputs DENTRO del form -->
     <div id="hiddenContainerPersonalTipoLicencia"></div>
     <div id="hiddenContainerPersonalHijo"></div>
-    <!-- ✅ Contenedor donde se renderiza el PartialView Mensajeria -->
     <div id="resultadoMensaje"></div>
     <button type="button" id="btnGrabar" name="btnGrabar" class="btn btn-info" style="margin-top: 2rem;">Enviar</button>
 }
+
+<!-- Botón flotante WhatsApp -->
+<a href="https://wa.me/56987797372?text=Hola%20quiero%20ayuda%20con%20el%20ingreso%20de%20datos"
+   target="_blank"
+   class="btn-whatsapp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="tooltip">¿Necesita ayuda?</span>
+</a>
 
 @section Scripts {
     <script>
         var getComuna_Url = '@Url.Action("GetComuna", "Personal")';
         var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
+
+        // Números WhatsApp desde appsettings.json
+        var waNumeros = @Html.Raw(ViewBag.WhatsAppNumeros ?? "[]");
     </script>
     <script src="~/js/Formulario.js" asp-append-version="true"></script>
     <script src="~/js/funcionesBasicas.js" asp-append-version="true"></script>
 }
-

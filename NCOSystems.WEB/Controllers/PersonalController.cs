@@ -12,10 +12,12 @@ namespace NCOSystems.WEB.Controllers
     public class PersonalController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly BLL.AppLog _log;
 
-        public PersonalController(IConfiguration configuration)
+        public PersonalController(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
+            _log = new BLL.AppLog(configuration, httpContextAccessor);
         }
 
         public IActionResult Index()
@@ -27,6 +29,9 @@ namespace NCOSystems.WEB.Controllers
 
                 if (model == null)
                     model = new PersonalViewModel();
+
+                var numeros = _configuration.GetSection("WhatsApp:Numeros").Get<List<string>>() ?? new List<string>();
+                ViewBag.WhatsAppNumeros = JsonSerializer.Serialize(numeros);
 
                 model.regionEntities = parametro.ListarRegion(_configuration);
                 model.tipoLicenciaEntities = parametro.ListarTipoLicencia(_configuration);
@@ -45,6 +50,10 @@ namespace NCOSystems.WEB.Controllers
             }
             catch (Exception ex)
             {
+                _log.Error("Error al cargar Index de Personal", ex,
+                    eventType: "ERROR_INDEX",
+                    category: "Personal");
+
                 return Content("ERROR: " + ex.Message + " | " + ex.InnerException?.Message);
             }
         }
@@ -53,76 +62,75 @@ namespace NCOSystems.WEB.Controllers
         public JsonResult GetComuna(int idRegion)
         {
             BLL.Parametro parametro = new BLL.Parametro();
-
             var listadoComuna = parametro.ListarComuna(idRegion, _configuration);
-
             return Json(listadoComuna);
         }
 
         [HttpPost]
         public JsonResult EliminarLicencia(string idPersonalTipoLicencia)
         {
-            // Obtener modelo de la memoria
             PersonalViewModel model = TempData.Get<PersonalViewModel>("PersonalData");
-
             model.personalTipoLicenciaEntities.RemoveAll(x => x.IdPersonalTipoLicencia == Convert.ToInt32(idPersonalTipoLicencia));
-
             return Json(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string personalData, string datoPersonalTipoLicencia, string datoPersonalHijo, [FromForm] List<TipoDocumentoEntity> documentos)
+        public async Task<IActionResult> Create(string personalData, string datoPersonalTipoLicencia,
+            string datoPersonalHijo, [FromForm] List<TipoDocumentoEntity> documentos)
         {
             int idPersonal = 0;
             string rutPersonal = string.Empty;
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             BLL.Documento documentoBLL = new BLL.Documento();
 
             try
             {
-                if (documentos.Count() == 0 || documentos.Any(x => x.Archivo == null))
+                // Validación documentos
+                if (!documentos.Any() || documentos.Any(x => x.Archivo == null))
                 {
+                    _log.Warning("Intento de grabación sin documentos adjuntos",
+                        eventType: "VALIDACION_DOC",
+                        category: "Personal");
+
                     return Json(new { isError = true, mensaje = "Debe adjuntar todos los documentos", url = "/Personal" });
                 }
 
+                // Grabar datos personales
                 idPersonal = Grabar(personalData, datoPersonalTipoLicencia, datoPersonalHijo, out rutPersonal);
 
-                var archivosGuardados = new List<object>();
-                var errores = new List<string>();
+                // Proceso FTP
+                var carpetaRut = rutPersonal.Replace(".", "").Replace("-", "");
 
-                //Conexión FTP fuera del foreach para no reconectar en cada iteración
                 using (var cliente = new AsyncFtpClient(
                     _configuration["FTP:Host"],
                     _configuration["FTP:Usuario"],
                     _configuration["FTP:Password"]))
                 {
-                    //Configuración FTPS(FTP Seguro)
                     cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
-                    cliente.Config.ValidateAnyCertificate = false; // Cambiar a false en producción con certificado válido
-
-                    //cliente.Config.EncryptionMode = FtpEncryptionMode.None;
-                    //cliente.Config.ValidateAnyCertificate = true; // Cambiar a false en producción con certificado válido
+                    cliente.Config.ValidateAnyCertificate = false;
 
                     await cliente.Connect();
 
+                    _log.Info("Conexión FTP establecida",
+                        eventType: "FTP_CONNECT",
+                        category: "FTP",
+                        payload: new { Host = _configuration["FTP:Host"], RutPersonal = rutPersonal });
+
                     foreach (var doc in documentos)
                     {
-                        var carpetaRemota = _configuration["FTP:RutaBase"] + "/" + rutPersonal.Replace(".", "").Replace("-", "");
+                        var carpetaRemota = $"{_configuration["FTP:RutaBase"]}/{carpetaRut}";
+                        var rutaArchivoRemoto = $"{carpetaRemota}/{doc.Archivo!.FileName}";
 
-                        //Leer el archivo en memoria antes de enviarlo por FTP
                         using var memoryStream = new MemoryStream();
-                        await doc.Archivo!.CopyToAsync(memoryStream);
+                        await doc.Archivo.CopyToAsync(memoryStream);
                         memoryStream.Position = 0;
-
-                        var rutaArchivoRemoto = $"{carpetaRemota}/{doc.Archivo.FileName}";
 
                         try
                         {
-                            //Crear carpeta remota si no existe
                             if (!await cliente.DirectoryExists(carpetaRemota))
                                 await cliente.CreateDirectory(carpetaRemota);
 
-                            //Subir archivo al FTP
                             var resultado = await cliente.UploadStream(
                                 memoryStream,
                                 rutaArchivoRemoto,
@@ -133,7 +141,12 @@ namespace NCOSystems.WEB.Controllers
                             if (resultado == FtpStatus.Failed)
                                 throw new Exception($"Error al subir el archivo {doc.Archivo.FileName} al FTP.");
 
-                            //Guardar en BD solo si el FTP fue exitoso
+                            _log.Info("Archivo subido al FTP correctamente",
+                                eventType: "FTP_UPLOAD_OK",
+                                category: "FTP",
+                                payload: new { doc.Archivo.FileName, rutaArchivoRemoto, idPersonal });
+
+                            // Guardar en BD solo si FTP fue exitoso
                             documentoBLL.Insertar(new DocumentoEntity
                             {
                                 IdPersonal = idPersonal,
@@ -141,23 +154,58 @@ namespace NCOSystems.WEB.Controllers
                                 NombreDocumento = doc.Archivo.FileName,
                                 IdUsuario = "ADMIN"
                             }, _configuration);
+
+                            _log.Info("Documento registrado en BD",
+                                eventType: "INSERT_DOCUMENTO",
+                                category: "FTP",
+                                payload: new { doc.Archivo.FileName, idPersonal, doc.IdTipoDocumento });
                         }
                         catch (Exception ex)
                         {
-                        //Rollback: si el archivo se subió al FTP pero falló la BD, eliminarlo del FTP
+                            // Rollback FTP si falló
                             if (await cliente.FileExists(rutaArchivoRemoto))
+                            {
                                 await cliente.DeleteFile(rutaArchivoRemoto);
 
-                            //Puedes loggear el error o relanzar la excepción según tu necesidad
+                                _log.Warning("Rollback FTP ejecutado: archivo eliminado por error en BD",
+                                    eventType: "FTP_ROLLBACK",
+                                    category: "FTP",
+                                    payload: new { doc.Archivo.FileName, rutaArchivoRemoto, idPersonal });
+                            }
+
+                            _log.Error($"Error procesando archivo {doc.Archivo.FileName}", ex,
+                                eventType: "FTP_UPLOAD_ERROR",
+                                category: "FTP",
+                                payload: new { doc.Archivo.FileName, rutaArchivoRemoto, idPersonal });
+
                             throw new Exception($"Error procesando el archivo {doc.Archivo.FileName}: {ex.Message}", ex);
                         }
                     }
 
                     await cliente.Disconnect();
+
+                    _log.Info("Conexión FTP cerrada correctamente",
+                        eventType: "FTP_DISCONNECT",
+                        category: "FTP",
+                        payload: new { RutPersonal = rutPersonal, TotalDocumentos = documentos.Count });
                 }
+
+                sw.Stop();
+
+                _log.Info("Proceso Create completado exitosamente",
+                    eventType: "CREATE_OK",
+                    category: "Personal",
+                    payload: new { idPersonal, rutPersonal, DurationMs = sw.ElapsedMilliseconds });
             }
             catch (Exception ex)
             {
+                sw.Stop();
+
+                _log.Error("Error general en Create de Personal", ex,
+                    eventType: "CREATE_ERROR",
+                    category: "Personal",
+                    payload: new { rutPersonal, DurationMs = sw.ElapsedMilliseconds });
+
                 return Json(new { isError = true, mensaje = ex.Message, url = "/Personal" });
             }
 
@@ -176,15 +224,26 @@ namespace NCOSystems.WEB.Controllers
             {
                 PropertyNameCaseInsensitive = true,
                 Converters =
-                        {
-                            new StringToIntConverter(),
-                            new StringToDateTimeConverter()
-                        }
+                {
+                    new StringToIntConverter(),
+                    new StringToDateTimeConverter()
+                }
             };
 
+            // Deserializar persona
             var persona = JsonSerializer.Deserialize<PersonalViewModel>(personalData, options);
 
-            personalEntity.IdComuna = persona!.IdComuna;
+            if (persona == null)
+            {
+                _log.Warning("Deserialización de personalData retornó null",
+                    eventType: "DESERIALIZE_NULL",
+                    category: "Grabar",
+                    payload: new { personalData });
+
+                throw new Exception("No se pudo deserializar los datos del personal.");
+            }
+
+            personalEntity.IdComuna = persona.IdComuna;
             personalEntity.RutPersonal = persona.RutPersonal!.Replace(".", "").ToUpper();
             personalEntity.NombrePersonal = persona.NombrePersonal!.ToUpper();
             personalEntity.ApPaternoPersonal = persona.ApPaternoPersonal!.ToUpper();
@@ -200,15 +259,69 @@ namespace NCOSystems.WEB.Controllers
             personalEntity.IndVigencia = 1;
             personalEntity.IdUsuario = "ADMIN";
 
-            idPersonal = personalBLL.Insertar(personalEntity, _configuration);
+            // Insertar persona principal
+            try
+            {
+                idPersonal = personalBLL.Insertar(personalEntity, _configuration);
 
-            var tipoLicencia = JsonSerializer.Deserialize<List<PersonalTipoLicenciaEntity>>(personalTipoLicencia, options);
+                _log.Info("Personal insertado correctamente",
+                    eventType: "INSERT_PERSONAL",
+                    category: "Grabar",
+                    payload: new { idPersonal, personalEntity.RutPersonal, personalEntity.NombrePersonal });
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error al insertar personal en BD", ex,
+                    eventType: "ERROR_INSERT_PERSONAL",
+                    category: "Grabar",
+                    payload: new { personalEntity.RutPersonal, personalEntity.NombrePersonal });
 
-            personalTipo.InsertarPersonalTipoLicencia(tipoLicencia!, idPersonal, _configuration);
+                throw;
+            }
 
-            var hijoPersonal = JsonSerializer.Deserialize<List<PersonalHijoEntity>>(personalHijo, options);
+            // Insertar tipos de licencia
+            try
+            {
+                var tipoLicencia = JsonSerializer.Deserialize<List<PersonalTipoLicenciaEntity>>(personalTipoLicencia, options);
 
-            personalHijoBLL.InsertarHijo(hijoPersonal!, idPersonal, _configuration);
+                personalTipo.InsertarPersonalTipoLicencia(tipoLicencia!, idPersonal, _configuration);
+
+                _log.Info("Tipos de licencia insertados correctamente",
+                    eventType: "INSERT_TIPO_LICENCIA",
+                    category: "Grabar",
+                    payload: new { idPersonal, cantidad = tipoLicencia?.Count ?? 0 });
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error al insertar tipos de licencia", ex,
+                    eventType: "ERROR_INSERT_TIPO_LICENCIA",
+                    category: "Grabar",
+                    payload: new { idPersonal });
+
+                throw;
+            }
+
+            // Insertar hijos
+            try
+            {
+                var hijoPersonal = JsonSerializer.Deserialize<List<PersonalHijoEntity>>(personalHijo, options);
+
+                personalHijoBLL.InsertarHijo(hijoPersonal!, idPersonal, _configuration);
+
+                _log.Info("Hijos insertados correctamente",
+                    eventType: "INSERT_HIJOS",
+                    category: "Grabar",
+                    payload: new { idPersonal, cantidad = hijoPersonal?.Count ?? 0 });
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Error al insertar hijos del personal", ex,
+                    eventType: "ERROR_INSERT_HIJOS",
+                    category: "Grabar",
+                    payload: new { idPersonal });
+
+                throw;
+            }
 
             rutPersonal = personalEntity.RutPersonal;
 
@@ -223,9 +336,7 @@ namespace NCOSystems.WEB.Controllers
             var listadoPersonal = personal.ListarPersonal(rutPersonal.Replace(".", ""), string.Empty, _configuration);
 
             if (listadoPersonal.Count > 0)
-            {
                 existe = true;
-            }
 
             return Json(new { existe });
         }

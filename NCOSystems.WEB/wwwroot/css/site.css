@@ -164,45 +164,73 @@ footer {
     }
 }
 
-/* Tamaño de letra uniforme en toda la grilla */
-/*.grid-mvc td,
-.grid-mvc th {
-    font-size: 0.875rem;
-    vertical-align: middle;
-}*/
+.btn-whatsapp {
+    position: fixed;
+    width: 70px;
+    height: 70px;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #FFF;
+    border-radius: 50%;
+    font-size: 38px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse 2s infinite;
+}
 
-    /* Igualar columna Archivo con columna Nombre */
-    /*.grid-mvc td:last-child,
-    .grid-mvc th:last-child {
-        min-width: 200px;
-        width: 50%;
-        font-size: 0.875rem;
+    /* Tooltip */
+    .btn-whatsapp .tooltip {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        bottom: 80px; /* encima del botón */
+        right: 0;
+        background-color: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        white-space: nowrap;
+        transition: opacity 0.3s ease;
     }
 
-    .grid-mvc td:nth-child(2),
-    .grid-mvc th:nth-child(2) {
-        min-width: 200px;
-        width: 50%;
-        font-size: 0.875rem;
-    }*/
-
-/* Input con mismo tamaño de letra que la grilla */
-/*.file-documento {
-    width: 100%;
-    min-width: 150px;
-    font-size: 0.875rem;
-}*/
-
-/* Ajustes en móvil */
-/*@media (max-width: 576px) {
-    .grid-mvc td,
-    .grid-mvc th {
-        font-size: 0.8rem;
-        padding: 4px !important;
+    .btn-whatsapp:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
     }
 
-    .file-documento {
-        font-size: 0.8rem;
-        min-width: 100px;
+/* Ajustes responsive para móviles */
+@media (max-width: 768px) {
+    .btn-whatsapp {
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+        bottom: 15px;
+        right: 15px;
     }
-}*/
+
+        .btn-whatsapp .tooltip {
+            font-size: 12px;
+            bottom: 70px; /* se ajusta la posición del tooltip */
+        }
+}
+
+@media (max-width: 480px) {
+    .btn-whatsapp {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+        .btn-whatsapp .tooltip {
+            font-size: 11px;
+            bottom: 65px;
+        }
+}
