@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,13 +19,28 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpContextAccessor();
 
+// ✅ Persistir claves de Data Protection en disco (evita fallos de antiforgery token
+// tras reinicios del App Pool, común en hosting compartido)
+var carpetaKeys = Path.Combine(Directory.GetCurrentDirectory(), "DataProtection-Keys");
+if (!Directory.Exists(carpetaKeys))
+    Directory.CreateDirectory(carpetaKeys);
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(carpetaKeys))
+    .SetApplicationName("NCOSystems");
+
 // ✅ Sesión en memoria (reemplaza TempData por cookies)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Builder.IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 104857600; // 100 MB
 });
 
 var app = builder.Build();

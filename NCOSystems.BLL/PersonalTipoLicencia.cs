@@ -1,22 +1,31 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using NCOSystems.Entity.Personal;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NCOSystems.BLL
 {
     public class PersonalTipoLicencia
     {
-        public void InsertarPersonalTipoLicencia(List<PersonalTipoLicenciaEntity> personalTipoLicenciaEntity, int idPersonal, IConfiguration configuration)
+
+        public void InsertarPersonalTipoLicencia(List<PersonalTipoLicenciaEntity> personalTipoLicenciaEntity, int idPersonal, IConfiguration configuration, AppLog _log)
         {
             DAL.PersonalTipoLicencia personal = new DAL.PersonalTipoLicencia();
-
+           
             foreach (var item in personalTipoLicenciaEntity)
             {
-                item.IdPersonal = idPersonal;
-                item.IdUsuario = "ADMIN";
-                personal.InsertarPersonalTipoLicencia(item, configuration);
+                try
+                {
+                    item.IdPersonal = idPersonal;
+                    item.IdUsuario = "ADMIN";
+                    personal.InsertarPersonalTipoLicencia(item, configuration);
+                }
+                catch (Exception ex)
+                {
+                    _log.Error("Error al insertar tipos de licencia", ex,
+                                eventType: "ERROR_INSERT_TIPO_LICENCIA",
+                                category: "Grabar",
+                                payload: new { idPersonal, item.IdPersonalTipoLicencia, item.FecVctoLicencia, item.FecOtorgamiento });
+                }
             }
         }
 

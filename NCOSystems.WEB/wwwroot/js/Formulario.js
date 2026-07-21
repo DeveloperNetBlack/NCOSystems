@@ -1,6 +1,36 @@
 ﻿$(document).ready(function () {
 
     // ==========================================
+    // Validación de tamaño de archivos adjuntos
+    // ==========================================
+    const TAMANO_MAXIMO_MB = 10;
+    const TAMANO_MAXIMO_BYTES = TAMANO_MAXIMO_MB * 1024 * 1024;
+
+    $(document).on("change", "input.file-documento", function () {
+        const input = this;
+        const nombreTipo = $(input).data("nombre");
+
+        if (input.files.length === 0) return;
+
+        const archivo = input.files[0];
+
+        if (archivo.size > TAMANO_MAXIMO_BYTES) {
+            const tamanoMB = (archivo.size / (1024 * 1024)).toFixed(2);
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Archivo demasiado grande',
+                html: `El archivo para <strong>${nombreTipo}</strong> pesa ${tamanoMB} MB.<br>El máximo permitido es ${TAMANO_MAXIMO_MB} MB.`,
+                confirmButtonText: 'OK'
+            });
+
+            $(input).val("");
+            $(input).removeClass("is-invalid");
+            return;
+        }
+    });
+
+    // ==========================================
     // Validación de Rut
     // ==========================================
     $("#RutPersonal").blur(function () {
@@ -216,11 +246,26 @@
         if (hidden) hidden.remove();
     });
 
+    async function enviarConReintento(url, opciones, maxIntentos = 2) {
+        for (let intento = 1; intento <= maxIntentos; intento++) {
+            try {
+                return await fetch(url, opciones);
+            } catch (err) {
+                if (intento === maxIntentos) throw err;
+                console.log(`Intento ${intento} falló, reintentando...`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+    }
+
     // ==========================================
     // Botón Grabar (fetch async)
     // ==========================================
     async function handleBtnGrabar() {
         const btn = document.getElementById("btnGrabar");
+
+        // Protección contra doble-clic/doble-submit
+        if (btn.disabled) return;
 
         var form = $('form').first();
         if (!form.data('validator')) {
@@ -354,9 +399,17 @@
         formData.append("datoPersonalTipoLicencia", JSON.stringify(datoPersonalTipoLicencia));
         formData.append("datoPersonalHijo", JSON.stringify(datoPersonalHijo));
 
+        let tamanoTotalFormData = 0;
+        for (const pair of formData.entries()) {
+            if (pair[1] instanceof File) {
+                tamanoTotalFormData += pair[1].size;
+            }
+        }
+        const tamanoTotalMB = (tamanoTotalFormData / (1024 * 1024)).toFixed(2);
+        console.log(`Tamaño total de archivos a enviar: ${tamanoTotalMB} MB`);
+
         btn.disabled = true;
 
-        // Popup de espera
         Swal.fire({
             title: 'Guardando datos...',
             text: 'Por favor espera un momento.',
@@ -368,15 +421,27 @@
             }
         });
 
+        const inicioRequest = performance.now();
+
         try {
-            const response = await fetch("/Personal/Create", {
+            const response = await enviarConReintento("/Personal/Create", {
                 method: "POST",
                 body: formData
             });
 
-            const data = await response.json();
+            const duracionMs = Math.round(performance.now() - inicioRequest);
+            const rawText = await response.text();
 
-            Swal.close(); // cierra el popup de "Guardando datos..."
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch (parseErr) {
+                throw new Error(
+                    `JSON incompleto | status=${response.status} | duracionMs=${duracionMs} | largoBody=${rawText.length} | inicioBody="${rawText.substring(0, 200)}"`
+                );
+            }
+
+            Swal.close();
 
             Swal.fire({
                 icon: data.isError ? 'error' : 'success',
@@ -390,11 +455,34 @@
             });
 
         } catch (err) {
+            const duracionMs = Math.round(performance.now() - inicioRequest);
             console.log(err);
-            Swal.close(); // cierra el popup de "Guardando datos..."
+            Swal.close();
+
+            const conexion = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const infoConexion = conexion
+                ? `tipoConexion=${conexion.effectiveType || 'desconocido'} | downlinkMbps=${conexion.downlink || 'desconocido'}`
+                : 'infoConexion=no disponible';
+
+            try {
+                await fetch("/Personal/LogClientError", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        mensaje: err.message || err.toString(),
+                        detalle: `${err.stack || ""} | duracionMsAntesDeFallar=${duracionMs} | online=${navigator.onLine} | ${infoConexion} | tamanoTotalMB=${tamanoTotalMB} | visibilityState=${document.visibilityState} | hasFocus=${document.hasFocus()}`,
+                        urlOrigen: window.location.href,
+                        userAgent: navigator.userAgent
+                    })
+                });
+            } catch (logErr) {
+                console.log("No se pudo registrar el error en el servidor:", logErr);
+            }
+
             Swal.fire({
                 icon: 'error',
-                title: err,
+                title: 'Error al enviar los datos',
+                text: 'Ocurrió un problema de conexión. Por favor intente nuevamente. Si el problema persiste, contacte a soporte.',
                 confirmButtonText: "OK"
             });
         } finally {

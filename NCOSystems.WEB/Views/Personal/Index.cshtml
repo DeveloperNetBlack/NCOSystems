@@ -1,6 +1,4 @@
-﻿@using GridCore
-@using GridMvc
-@addTagHelper *, GridMvc
+﻿@using GridMvc
 @model PersonalViewModel
 
 <div class="row" style="margin-top: 2rem; margin-bottom: 3rem;">
@@ -173,6 +171,10 @@
     <br />
     <div class="row">
         <h4>Documentación</h4>
+        <div class="alert alert-info" role="alert" style="margin-bottom: 1rem;">
+            <i class="fas fa-info-circle"></i>
+            Cada archivo adjunto no debe superar los <strong>10 MB</strong>.
+        </div>
         <div class="row">
             <div class="table-responsive">
                 @await Html.Grid(Model.tipoDocumentoEntities).Named("gridTipoDocumento").Columns(c =>
@@ -209,7 +211,7 @@
         var validarRut_Url = '@Url.Action("ValidarRut", "Personal")';
 
         // Números WhatsApp desde appsettings.json
-        var waNumeros = @Html.Raw(ViewBag.WhatsAppNumeros ?? "[]");
+        var waNumeros = @Html.Raw(ViewBag.WhatsAppNumeros ?? "[]")
     </script>
     <script src="~/js/Formulario.js" asp-append-version="true"></script>
     <script src="~/js/funcionesBasicas.js" asp-append-version="true"></script>
