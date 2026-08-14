@@ -246,14 +246,14 @@
         if (hidden) hidden.remove();
     });
 
-    async function enviarConReintento(url, opciones, maxIntentos = 2) {
+    async function enviarConReintento(url, opciones, maxIntentos = 3) {
         for (let intento = 1; intento <= maxIntentos; intento++) {
             try {
                 return await fetch(url, opciones);
             } catch (err) {
                 if (intento === maxIntentos) throw err;
                 console.log(`Intento ${intento} falló, reintentando...`);
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 20000 * intento)); // espera creciente: 2s, 4s
             }
         }
     }
@@ -298,6 +298,8 @@
             });
             return;
         }
+
+        var rutPersonal = document.getElementById("RutPersonal")?.value || "";
 
         const personalData = {
             RutPersonal: document.getElementById("RutPersonal")?.value || "",
@@ -437,7 +439,7 @@
                 data = JSON.parse(rawText);
             } catch (parseErr) {
                 throw new Error(
-                    `JSON incompleto | status=${response.status} | duracionMs=${duracionMs} | largoBody=${rawText.length} | inicioBody="${rawText.substring(0, 200)}"`
+                    `JSON incompleto | rutpersonal=${rutPersonal} | status=${response.status} | duracionMs=${duracionMs} | largoBody=${rawText.length} | inicioBody="${rawText.substring(0, 200)}"`
                 );
             }
 
@@ -470,7 +472,7 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         mensaje: err.message || err.toString(),
-                        detalle: `${err.stack || ""} | duracionMsAntesDeFallar=${duracionMs} | online=${navigator.onLine} | ${infoConexion} | tamanoTotalMB=${tamanoTotalMB} | visibilityState=${document.visibilityState} | hasFocus=${document.hasFocus()}`,
+                        detalle: `${err.stack || ""} | rutpersonal=${rutPersonal} | duracionMsAntesDeFallar=${duracionMs} | online=${navigator.onLine} | ${infoConexion} | tamanoTotalMB=${tamanoTotalMB} | visibilityState=${document.visibilityState} | hasFocus=${document.hasFocus()}`,
                         urlOrigen: window.location.href,
                         userAgent: navigator.userAgent
                     })
@@ -481,8 +483,8 @@
 
             Swal.fire({
                 icon: 'error',
-                title: 'Error al enviar los datos',
-                text: 'Ocurrió un problema de conexión. Por favor intente nuevamente. Si el problema persiste, contacte a soporte.',
+                title: 'Problema de conexión',
+                text: 'No se pudo completar el envío debido a una conexión inestable. Por favor, verifica tu señal o intenta conectarte a una red WiFi, y vuelve a intentarlo.',
                 confirmButtonText: "OK"
             });
         } finally {
