@@ -1,4 +1,4 @@
-﻿using CompileIT.NET9.DB.SQLServer;
+﻿using Knotus.NET10.DB.SQLServer;
 using Microsoft.Extensions.Configuration;
 using NCOSystems.Entity.Personal;
 using System.Data;
@@ -16,11 +16,11 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_INS_PERSONAL_TIPO_LICENCIA";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonal);
-            parameters.addParameters("@PI_ID_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdTipoLicencia!);
-            parameters.addParameters("@PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaVctoLicencia);
-            parameters.addParameters("@PI_FEC_OTORGAMIENTO", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaOtorgamiento);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalTipoLicenciaEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonal);
+            parameters.AddParameter("PI_ID_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdTipoLicencia!);
+            parameters.AddParameter("PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaVctoLicencia);
+            parameters.AddParameter("PI_FEC_OTORGAMIENTO", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaOtorgamiento);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalTipoLicenciaEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
         }
@@ -34,12 +34,12 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_UPD_PERSONAL_TIPO_LICENCIA";
 
-            parameters.addParameters("@PI_ID_PERSONAL_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonalTipoLicencia);
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonal);
-            parameters.addParameters("@PI_ID_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdTipoLicencia!);
-            parameters.addParameters("@PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaVctoLicencia);
-            parameters.addParameters("@PI_FEC_OTORGAMIENTO", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaOtorgamiento);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalTipoLicenciaEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_PERSONAL_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonalTipoLicencia);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdPersonal);
+            parameters.AddParameter("PI_ID_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, personalTipoLicenciaEntity.IdTipoLicencia!);
+            parameters.AddParameter("PI_FEC_VCTO_LICENCIA", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaVctoLicencia);
+            parameters.AddParameter("PI_FEC_OTORGAMIENTO", TypeData.DataType.Date, 0, ParameterDirection.Input, personalTipoLicenciaEntity.FechaOtorgamiento);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalTipoLicenciaEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
         }
@@ -53,7 +53,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_DEL_PERSONAL_TIPO_LICENCIA";
 
-            parameters.addParameters("@PI_ID_PERSONAL_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonalTipoLicencia);
+            parameters.AddParameter("PI_ID_PERSONAL_TIPO_LICENCIA", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonalTipoLicencia);
 
             conn.ExecuteSQL(parameters);
         }
@@ -67,7 +67,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_SEL_PERSONAL_TIPO_LICENCIA";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonal);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonal);
 
             conn.ExecuteSQL(parameters);
 

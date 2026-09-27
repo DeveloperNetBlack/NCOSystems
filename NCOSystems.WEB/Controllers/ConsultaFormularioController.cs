@@ -518,11 +518,14 @@ namespace NCOSystems.WEB.Controllers
 
             try
             {
+
+                string claveFTP = Security.Decrypt(_configuration["FTP:Password"]!.ToString(), _configuration["Security:FTPPassphrase"]!.ToString());
+
                 //Conexión FTP fuera del foreach para no reconectar en cada iteración
                 using (var cliente = new AsyncFtpClient(
                     _configuration["FTP:Host"],
                     _configuration["FTP:Usuario"],
-                    _configuration["FTP:Password"]))
+                    claveFTP))
                 {
                     //Configuración FTPS(FTP Seguro)
                     cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;

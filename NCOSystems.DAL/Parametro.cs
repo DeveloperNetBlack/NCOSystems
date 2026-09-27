@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CompileIT.NET9.DB.SQLServer;
-using System.Data;
-using NCOSystems.Entity.Parametro;
+﻿using Knotus.NET10.DB.SQLServer;
 using Microsoft.Extensions.Configuration;
+using NCOSystems.Entity.Parametro;
+using System.Data;
 
 namespace NCOSystems.DAL
 {
@@ -19,7 +16,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_SEL_COMUNA";
 
-            parameters.addParameters("@PI_ID_REGION", TypeData.DataType.Int, 0, ParameterDirection.Input, idRegion);
+            parameters.AddParameter("@PI_ID_REGION", TypeData.DataType.Int, 0, ParameterDirection.Input, idRegion);
 
             conn.ExecuteSQL(parameters);
 

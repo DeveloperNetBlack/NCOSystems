@@ -1,4 +1,4 @@
-﻿using CompileIT.NET9.DB.SQLServer;
+﻿using Knotus.NET10.DB.SQLServer;
 using Microsoft.Extensions.Configuration;
 using NCOSystems.Entity.Parametro;
 using System.Data;
@@ -16,10 +16,10 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_INS_DOCUMENTO";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdPersonal);
-            parameters.addParameters("@PI_ID_TIPO_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdTipoDocumento);
-            parameters.addParameters("@PI_NOMBRE_DOCUMENTO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, documentoEntity.NombreDocumento!);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdPersonal);
+            parameters.AddParameter("PI_ID_TIPO_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdTipoDocumento);
+            parameters.AddParameter("PI_NOMBRE_DOCUMENTO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, documentoEntity.NombreDocumento!);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
 
@@ -34,11 +34,11 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_UPD_DOCUMENTO";
 
-            parameters.addParameters("@PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdDocumento);
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdPersonal);
-            parameters.addParameters("@PI_ID_TIPO_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdTipoDocumento);
-            parameters.addParameters("@PI_NOMBRE_DOCUMENTO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, documentoEntity.NombreDocumento!);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdDocumento);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdPersonal);
+            parameters.AddParameter("PI_ID_TIPO_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, documentoEntity.IdTipoDocumento);
+            parameters.AddParameter("PI_NOMBRE_DOCUMENTO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, documentoEntity.NombreDocumento!);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, documentoEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
 
@@ -53,7 +53,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_DEL_DOCUMENTO";
 
-            parameters.addParameters("@PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, idDocumento);
+            parameters.AddParameter("PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, idDocumento);
 
             conn.ExecuteSQL(parameters);
 
@@ -68,7 +68,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_SEL_DOCUMENTO";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersona);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersona);
 
             conn.ExecuteSQL(parameters);
 
@@ -91,7 +91,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_SEL_DOCUMENTO_ID";
 
-            parameters.addParameters("@PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, idDocumento);
+            parameters.AddParameter("PI_ID_DOCUMENTO", TypeData.DataType.Int, 0, ParameterDirection.Input, idDocumento);
 
             conn.ExecuteSQL(parameters);
 

@@ -10,6 +10,12 @@
         const input = this;
         const nombreTipo = $(input).data("nombre");
 
+        const id = $(this).data('id');
+        const fileName = (this.files && this.files.length > 0)
+            ? this.files[0].name
+            : 'Seleccionar archivo';
+        $('#fileName_' + id).text(fileName).attr('title', fileName);
+
         if (input.files.length === 0) return;
 
         const archivo = input.files[0];
@@ -116,12 +122,14 @@
     var currentYear = new Date().getFullYear();
 
     $("#FechaVctoLicencia").datepicker({
+        dateFormat: "dd/mm/yy",   // yy = año de 4 dígitos en jQuery UI (no te dejes engañar por el nombre)
         changeMonth: true,
         changeYear: true,
         minDate: 0
     });
 
     $("#FecOtorgamiento").datepicker({
+        dateFormat: "dd/mm/yy",
         changeMonth: true,
         changeYear: true,
         minDate: "-30Y",
@@ -129,6 +137,7 @@
     });
 
     $("#FecNacimiento").datepicker({
+        dateFormat: "dd/mm/yy",
         changeMonth: true,
         changeYear: true,
         minDate: "-90Y",
@@ -154,6 +163,20 @@
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#3085d6'
             });
+            return;
+        }
+
+        const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/; // dd/mm/yyyy
+
+        if (!regexFecha.test(fechaOtorgamiento) || !regexFecha.test(fechaVctoLicencia)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Fecha inválida',
+                text: 'Las fechas de Otorgamiento y Vencimiento deben seleccionarse desde el calendario.',
+                confirmButtonText: 'OK'
+            });
+            $("#FechaVctoLicencia").val("");
+            $("#FecOtorgamiento").val("");
             return;
         }
 
@@ -273,6 +296,29 @@
         }
         var esValido = form.data('validator') ? form.valid() : true;
         if (!esValido) return;
+
+        // ==========================================
+        // Validación de formato de fechas (defensa adicional)
+        // ==========================================
+        const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/; // dd/mm/yyyy
+
+        const fechasAValidar = [
+            { id: "FecNacimiento", nombre: "Fecha de Nacimiento" }
+        ];
+
+        for (const campo of fechasAValidar) {
+            const valor = $(`#${campo.id}`).val();
+            if (valor && !regexFecha.test(valor)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fecha inválida',
+                    text: `El campo "${campo.nombre}" tiene un formato inválido. Por favor selecciónala nuevamente desde el calendario.`,
+                    confirmButtonText: 'OK'
+                });
+                $(`#${campo.id}`).val("").focus();
+                return;
+            }
+        }
 
         const inputs = document.querySelectorAll("input.file-documento");
         const documentosFaltantes = [];

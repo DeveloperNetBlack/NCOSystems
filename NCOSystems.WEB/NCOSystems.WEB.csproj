@@ -1,15 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>66000463-7743-4f56-accf-98e9fc7ac544</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />
-    <PackageReference Include="FluentFTP" Version="54.2.0" />
-    <PackageReference Include="GridMvcCore" Version="8.3.0" />
+    <PackageReference Include="FluentFTP" Version="55.0.0" />
+    <PackageReference Include="GridMvcCore" Version="8.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 

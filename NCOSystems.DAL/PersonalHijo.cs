@@ -1,4 +1,4 @@
-﻿using CompileIT.NET9.DB.SQLServer;
+﻿using Knotus.NET10.DB.SQLServer;
 using Microsoft.Extensions.Configuration;
 using NCOSystems.Entity.Personal;
 using System.Data;
@@ -16,10 +16,10 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_INS_PERSONAL_HIJO";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonal);
-            parameters.addParameters("@PI_NOMBRE_HIJO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalHijoEntity.NombreHijo!.ToUpper());
-            parameters.addParameters("@PI_EDAD_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.EdadHijo!);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalHijoEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonal);
+            parameters.AddParameter("PI_NOMBRE_HIJO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalHijoEntity.NombreHijo!.ToUpper());
+            parameters.AddParameter("PI_EDAD_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.EdadHijo!);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalHijoEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
         }
@@ -33,11 +33,11 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_UPD_PERSONAL_HIJO";
 
-            parameters.addParameters("@PI_ID_PERSONAL_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonalHijo);
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonal);
-            parameters.addParameters("@PI_NOMBRE_HIJO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalHijoEntity.NombreHijo!.ToUpper());
-            parameters.addParameters("@PI_EDAD_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.EdadHijo!);
-            parameters.addParameters("@PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalHijoEntity.IdUsuario!);
+            parameters.AddParameter("PI_ID_PERSONAL_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonalHijo);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.IdPersonal);
+            parameters.AddParameter("PI_NOMBRE_HIJO", TypeData.DataType.Varchar, 80, ParameterDirection.Input, personalHijoEntity.NombreHijo!.ToUpper());
+            parameters.AddParameter("PI_EDAD_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, personalHijoEntity.EdadHijo!);
+            parameters.AddParameter("PI_ID_USUARIO", TypeData.DataType.Varchar, 30, ParameterDirection.Input, personalHijoEntity.IdUsuario!);
 
             conn.ExecuteSQL(parameters);
         }
@@ -51,7 +51,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_DEL_PERSONAL_HIJO";
 
-            parameters.addParameters("@PI_ID_PERSONAL_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonalHijo);
+            parameters.AddParameter("PI_ID_PERSONAL_HIJO", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonalHijo);
 
             conn.ExecuteSQL(parameters);
         }
@@ -65,7 +65,7 @@ namespace NCOSystems.DAL
 
             parameters.NameProcedure = "SP_SEL_PERSONAL_HIJO";
 
-            parameters.addParameters("@PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonal);
+            parameters.AddParameter("PI_ID_PERSONAL", TypeData.DataType.Int, 0, ParameterDirection.Input, idPersonal);
 
             conn.ExecuteSQL(parameters);
 

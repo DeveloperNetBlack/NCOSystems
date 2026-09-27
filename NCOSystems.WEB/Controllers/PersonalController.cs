@@ -137,11 +137,12 @@ namespace NCOSystems.WEB.Controllers
 
                 // Proceso FTP
                 var carpetaRut = rutPersonal.Replace(".", "").Replace("-", "");
+                string claveFTP = Security.Decrypt(_configuration["FTP:Password"]!.ToString(), _configuration["Security:FTPPassphrase"]!.ToString());
 
                 using (var cliente = new AsyncFtpClient(
                     _configuration["FTP:Host"],
                     _configuration["FTP:Usuario"],
-                    _configuration["FTP:Password"]))
+                    claveFTP))
                 {
                     cliente.Config.EncryptionMode = FtpEncryptionMode.Explicit;
                     cliente.Config.ValidateAnyCertificate = false;
